@@ -1,3 +1,3 @@
 Estou usando sinatra e as demais gems listadas no require do core.
 Inclui um arquivo de mock com meu próprio histórico, comente ou descomente para usá-lo ou não.
-O serviço é um pouco instável
+O serviço de consulta da ticket é um pouco instável
