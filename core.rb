@@ -5,6 +5,8 @@ require 'hpricot'
 require 'expense'
 require 'oauth'
 
+enable :sessions
+
 get '/ticket_history' do
   number = params[:number]
   operation = 'lancamentos'
