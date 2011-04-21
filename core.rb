@@ -33,10 +33,10 @@ private
   url = "http://www.ticket.com.br/portal/portalcorporativo/dpages/service/consulteseusaldo/seeBalance.jsp?txtOperation=#{operation}&txtCardNumber=#{number}"
   begin
     puts url
-    #f = open(url)
-    f = File.open('mock.txt')
-    #doc = Hpricot(Iconv.conv('UTF-8', f.charset, f.read))
-    doc = Hpricot(f)
+    f = open(url)
+    #f = File.open('mock.txt')
+    doc = Hpricot(Iconv.conv('UTF-8', f.charset, f.read))
+    #doc = Hpricot(f)
     doc = doc.at("body/script").inner_html
     initial_index = doc =~ /\[/
     final_index = doc =~ /\]/
