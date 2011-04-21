@@ -38,15 +38,15 @@ def client
 end
 
 get '/auth/apontador' do
-  @request_token=client.get_request_token(:oauth_callback => redirect_uri)
-  session[:request_token]=@request_token
-  redirect @request_token.authorize_url
+  request_token=client.get_request_token(:oauth_callback => redirect_uri)
+  session[:request_token]=request_token
+  redirect request_token.authorize_url
   
 end
 
 get '/apontador_callback' do
-  @request_token = session[:request_token]
-  @access_token=@request_token.get_access_token
+  request_token = session[:request_token]
+  access_token=request_token.get_access_token
 end
 
 
