@@ -46,7 +46,7 @@ end
 
 get '/apontador_callback' do
   request_token = session[:request_token]
-  access_token=request_token.get_access_token(:http_method => :get, :scheme => :query_string)
+  access_token=request_token.get_access_token(:oauth_verifier => params[:oauth_verifier])
 end
 
 
