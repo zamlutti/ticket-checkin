@@ -46,7 +46,10 @@ end
 
 get '/apontador_callback' do
   request_token = session[:request_token]
-  access_token=request_token.get_access_token(:oauth_verifier => params[:oauth_verifier])
+  x = OAuth::Consumer.new( "hxGukWgs3XLL1xU4tkrvPv7Fx11j5m0ZXtiyuGOv2Vo~","gAKi8cdPDF10VutPGhQsFzOrlAc~", {
+      :site => "http://api.apontador.com.br", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
+      })
+  access_token=x.get_access_token(request_token, :oauth_verifier => params[:oauth_verifier])
 end
 
 
