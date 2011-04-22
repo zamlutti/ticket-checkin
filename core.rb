@@ -4,11 +4,15 @@ require 'open-uri'
 require 'hpricot'
 require 'expense'
 require 'oauth'
+require 'couchrest'
+require 'utils'
+
+include Utils
 
 enable :sessions
 
-get '/ticket_history' do
-  number = params[:number]
+get '/ticket_history/:ticket_number' do
+  number = params[:ticket_number]
   operation = 'lancamentos'
   doc = get_doc operation,number
   history_array = JSON.parse(doc)
@@ -26,18 +30,19 @@ get '/ticket_history' do
       puts 'ignoring: '+elem.to_s
     end
   end
-  #puts expense_array[0].amount
   #haml :history
-  doc  
+  #expense_array[0]
+  history_array.to_json
 end
 
 def client
-  OAuth::Consumer.new( "hxGukWgs3XLL1xU4tkrvPv7Fx11j5m0ZXtiyuGOv2Vo~","gAKi8cdPDF10VutPGhQsFzOrlAc~", {
+  OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
       :site => "http://api.apontador.com.br", :http_method => :get, :scheme => :query_string, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
       })
 end
 
 get '/auth/apontador' do
+  session[:ticket_number] = params[:ticket_number]
   request_token=client.get_request_token(:oauth_callback => redirect_uri)
   session[:request_token]=request_token
   redirect request_token.authorize_url
@@ -46,10 +51,32 @@ end
 
 get '/apontador_callback' do
   request_token = session[:request_token]
-  x = OAuth::Consumer.new( "hxGukWgs3XLL1xU4tkrvPv7Fx11j5m0ZXtiyuGOv2Vo~","gAKi8cdPDF10VutPGhQsFzOrlAc~", {
-      :site => "http://api.apontador.com.br", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
-      })
-  access_token=x.get_access_token(request_token, :oauth_verifier => params[:oauth_verifier])
+  access_token=client.get_access_token(request_token, :oauth_verifier => params[:oauth_verifier])
+  puts access_token.token
+  puts access_token.secret
+  response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/xml' })
+  puts response
+  obj = JSON.parse(response.body)
+  response.body
+end
+
+get '/test_call' do
+  access_token = OAuth::AccessToken.new(client, '2164744031-hxGukWgs3XK1KxSV6iyRkofC-YvNPw7Do3euGYDuwfqTRC1HwJmFyQ~~', 'UACOgiWO8vn7AaeV1Nn_l_C-o1w~')
+  response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/xml' })
+  puts response
+  obj = JSON.parse(response.body)
+  response.body
+end
+
+
+get '/couch' do
+  @db = CouchRest.database!("http://tickets:tickets@127.0.0.1:5984/ticket-checkin")
+#  response = @db.save_doc({'_id' => '1234', :name => 'thiago'})
+  doc = @db.get('1234')
+  puts build_date('12/04/2011')
+  puts 
+  puts doc.inspect
+  'funfou'
 end
 
 
