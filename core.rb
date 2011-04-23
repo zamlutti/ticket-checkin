@@ -20,10 +20,10 @@ get '/ticket_history/:ticket_number' do
 end
 
 
-def client
+def client(params={})
   OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
-      :site => "http://api.apontador.com.br", :http_method => :get, :scheme => :query_string, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
-      })
+      :site => "http://api.apontador.com.br", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
+      }.merge(params))
 end
 
 def get_db
@@ -37,7 +37,7 @@ end
 
 post '/process_signup' do
   session[:ticket_number] = params[:ticket_number]
-  request_token=client.get_request_token(:oauth_callback => redirect_uri)
+  request_token=client(:scheme => :query_string).get_request_token(:oauth_callback => redirect_uri)
   session[:request_token]=request_token
   redirect request_token.authorize_url
 end
@@ -56,19 +56,40 @@ get '/apontador_callback' do
     @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], :ticket => session[:ticket_number], 
       :access_token => access_token.token, :access_secret => access_token.secret})
   rescue RestClient::Conflict => conflic
-    return 'Usuário já cadastrado!'
+    @db.update_doc(user['user']['id']) {|doc| (doc['access_token'] = access_token.token) && (doc['access_secret'] = access_token.secret)}
+    return 'Usuário já cadastrado! Atualizando'
   end
-  response.body
+  'Usuário cadastrado com sucesso!'
 end
 
 get '/test_call' do
   access_token = OAuth::AccessToken.new(client, '2164744031-hxGukWgs3XK1KxSV6iyRkofC-YvNPw7Do3euGYDuwfqTRC1HwJmFyQ~~', 'UACOgiWO8vn7AaeV1Nn_l_C-o1w~')
-  response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/xml' })
+  response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/json' })
   puts response
   obj = JSON.parse(response.body)
   response.body
 end
 
+get '/test_find' do
+  term = URI.escape 'patroni pizza vila olimpia'
+  url = "http://api.apontador.com.br/v1/search/places/byaddress?term=#{term}&state=sp&city=s%C3%A3o%20paulo&category_id=67&type=json"
+  f = open(url, :http_basic_authentication => [ApontadorConfig.get_map['consumer_key'], ApontadorConfig.get_map['consumer_secret']])
+  obj = JSON.parse f.read
+  if (obj['search']['result_count'].to_i > 0 )
+    place_id = obj['search']['places'][0]['place']['id'].to_s
+  end
+  place_id
+end
+
+get '/test_checkin' do
+  @db = get_db
+  place_id = 'C40619741C415O415A'
+  doc = @db.get('2164744031')
+  puts "#{doc['access_token']} ------ #{doc['access_secret']}"
+  access_token = OAuth::AccessToken.new(client, doc['access_token'], doc['access_secret'])
+  response = access_token.put('http://api.apontador.com.br/v1/users/self/visits',{:type => 'json', :place_id => place_id}, { 'Accept'=>'application/json' })
+  response.body
+end
 
 get '/couch_test' do
   @db = get_db
