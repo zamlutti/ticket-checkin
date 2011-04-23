@@ -16,5 +16,13 @@ module Utils
     end
     
   end
+
+  class CouchDBConfig
+    
+    def self.get_map
+      @@couchdb_config ||= ConfigStore.new("config/couchdb_config.yml")
+    end
+    
+  end
  
 end
