@@ -44,7 +44,10 @@ end
 
 get '/apontador_callback' do
   request_token = session[:request_token]
-  access_token=client.get_access_token(request_token, :oauth_verifier => params[:oauth_verifier])
+  x = OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
+      :site => "http://192.168.0.195:8080", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/freeapi/oauth/access_token'
+      }.merge({:scheme => :query_string}))
+  access_token=client(:scheme => :query_string).get_access_token(request_token, :oauth_verifier => params[:oauth_verifier])
   puts access_token.token
   puts access_token.secret
   response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/xml' })
