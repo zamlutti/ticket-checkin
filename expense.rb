@@ -4,7 +4,7 @@ class Expense
   attr_accessor :amount
   
   def to_json(params=nil)
-    "{\"expense\": {\"date\":\"#{@date}\",\"description\":\"#{@description}\", \"value\" : \"#{@amount}\"}}"
+    "{\"expense\": {\"date\":\"#{@date}\",\"description\":\"#{@description}\", \"amount\" : \"#{@amount}\"}}"
   end
   
 end

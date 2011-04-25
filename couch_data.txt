@@ -1,0 +1,40 @@
+//data
+
+{
+   "_id": "46e43f9c1bf06d6f908521a0047c1502",
+   "_rev": "2-baa4027839684c0e65d83a61183dbf96",
+   "type": "expense",
+   "date": "20/04/2011",
+   "amount": "14,30",
+   "ticket": "6033423713292003",
+   "description": "SAUIPE CAFE E LANCHES LTDA"
+}
+
+
+{
+   "_id": "2164744031",
+   "_rev": "1-763129f1982a90618b7dccbbddae36a0",
+   "ticket": null,
+   "type": "user",
+   "access_secret": "91ReoBBHVHX-vktm3VI1IjIz2Qw~",
+   "access_token": "2164744031-hxGukWgs3XK1KxSV6iyRkofC-YvNPw7Dv5R_7MwhQll2myzFmgmINg~~",
+   "name": "Thiago Ganzarolli"
+}
+
+
+//views
+
+{
+   "_id": "_design/unique_expenses",
+   "_rev": "3-54cd521ccc0b2b4f696f54461e63c0aa",
+   "language": "javascript",
+   "views": {
+       "by_date_amount_and_desc": {
+           "map": "function(doc) {\n  if (doc.type == \"expense\") {\n    emit([doc.date, doc.amount, doc.description], doc);\n  }\n}"
+       }
+   }
+}
+
+//query
+
+http://localhost:5984/ticket-checkin/_design/unique_expenses/_view/by_date_amount_and_desc?key=[%2220/04/2011%22,%2214,30%22,%22SAUIPE%20CAFE%20E%20LANCHES%20LTDA%22]
