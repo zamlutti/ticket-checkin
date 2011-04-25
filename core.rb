@@ -8,6 +8,20 @@ require 'couchrest'
 require 'utils'
 include Utils
 
+module OAuth::RequestProxy::Net
+  module HTTP
+    class HTTPRequest < OAuth::RequestProxy::Base
+      def query_string
+        params = [ query_params, auth_header_params ]
+        params << post_params if
+          ['POST', 'PUT'].include?(method.to_s.upcase)
+        params.compact.join('&')
+      end
+    end
+  end
+end
+
+
 use Rack::Session::Cookie, :key => 'tickets.session',
                            :path => '/',
                            :expire_after => 2592000, # In seconds
@@ -92,10 +106,7 @@ get '/test_checkin' do
   place_id = 'C40619741C415O415A'
   doc = @db.get('2164744031')
   puts "#{doc['access_token']} ------ #{doc['access_secret']}"
-  access_token = OAuth::AccessToken.new(client(:scheme => :boyd, :method => :put), doc['access_token'], doc['access_secret'])
-#  OAuth::Signature.available_methods[""] = OAuth::Signature::HMAC::SHA1
-   
-#  response = access_token.put('http://localhost:4567/test_checkin_gambi')
+  access_token = OAuth::AccessToken.new(client(:scheme => :body, :method => :put), doc['access_token'], doc['access_secret'])
   response = access_token.put('http://localhost:8080/freeapi/users/self/visits',{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })
   response.body
 end
