@@ -6,10 +6,12 @@ require 'expense'
 require 'oauth'
 require 'couchrest'
 require 'utils'
-
 include Utils
 
-enable :sessions
+use Rack::Session::Cookie, :key => 'tickets.session',
+                           :path => '/',
+                           :expire_after => 2592000, # In seconds
+                           :secret => 'baboo'
 
 get '/ticket_history/:ticket_number' do
   number = params[:ticket_number]
@@ -22,7 +24,7 @@ end
 
 def client(params={})
   OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
-      :site => "http://api.apontador.com.br", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
+      :site => "http://localhost:8080", :http_method => :get, :request_token_path => '/freeapi/oauth/request_token', :authorize_path => '/freeapi/oauth/authorize', :access_token_path => '/freeapi/oauth/access_token'
       }.merge(params))
 end
 
@@ -31,23 +33,21 @@ def get_db
   @db = CouchRest.database!("http://#{couchdb_config['user']}:#{couchdb_config['password']}@#{couchdb_config['host']}/#{couchdb_config['database']}")
 end
 
+
 get '/signup' do
-    haml :signup
+  puts session[:ticket_number]
+  haml :signup
 end
 
 post '/process_signup' do
   session[:ticket_number] = params[:ticket_number]
   request_token=client(:scheme => :query_string).get_request_token(:oauth_callback => redirect_uri)
-  session[:request_token]=request_token
   redirect request_token.authorize_url
 end
 
 get '/apontador_callback' do
-  request_token = session[:request_token]
-  x = OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
-      :site => "http://192.168.0.195:8080", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/freeapi/oauth/access_token'
-      }.merge({:scheme => :query_string}))
-  access_token=client(:scheme => :query_string).get_access_token(request_token, :oauth_verifier => params[:oauth_verifier])
+  request_token = OAuth::RequestToken.new(client(:scheme => :query_string), session[:request_token],session[:request_token_secret])
+  access_token=client(:scheme => :query_string).get_access_token(nil,:oauth_callback => redirect_uri, :oauth_verifier => params[:oauth_verifier])
   puts access_token.token
   puts access_token.secret
   response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/xml' })
@@ -66,7 +66,10 @@ get '/apontador_callback' do
 end
 
 get '/test_call' do
-  access_token = OAuth::AccessToken.new(client, '2164744031-hxGukWgs3XK1KxSV6iyRkofC-YvNPw7Do3euGYDuwfqTRC1HwJmFyQ~~', 'UACOgiWO8vn7AaeV1Nn_l_C-o1w~')
+  @db = get_db
+  doc = @db.get('2164744031')
+  puts "#{doc['access_token']} ------ #{doc['access_secret']}"
+  access_token = OAuth::AccessToken.new(client(:scheme => :query_string), doc['access_token'], doc['access_secret'])
   response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/json' })
   puts response
   obj = JSON.parse(response.body)
@@ -89,8 +92,21 @@ get '/test_checkin' do
   place_id = 'C40619741C415O415A'
   doc = @db.get('2164744031')
   puts "#{doc['access_token']} ------ #{doc['access_secret']}"
-  access_token = OAuth::AccessToken.new(client, doc['access_token'], doc['access_secret'])
-  response = access_token.put('http://api.apontador.com.br/v1/users/self/visits',{:type => 'json', :place_id => place_id}, { 'Accept'=>'application/json' })
+  access_token = OAuth::AccessToken.new(client(:scheme => :boyd, :method => :put), doc['access_token'], doc['access_secret'])
+#  OAuth::Signature.available_methods[""] = OAuth::Signature::HMAC::SHA1
+   
+#  response = access_token.put('http://localhost:4567/test_checkin_gambi')
+  response = access_token.put('http://localhost:8080/freeapi/users/self/visits',{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })
+  response.body
+end
+
+get '/test_checkin_gambi' do
+  @db = get_db
+  place_id = 'C40619741C415O415A'
+  doc = @db.get('2164744031')
+  puts "#{doc['access_token']} ------ #{doc['access_secret']}"
+  access_token = OAuth::AccessToken.new(client(:scheme => :body), doc['access_token'], doc['access_secret'])
+  response = access_token.put('http://localhost:8080/freeapi/users/self/visits',{:type => 'json', :place_id => place_id}.merge(params), {'Accept'=>'application/json' })
   response.body
 end
 
