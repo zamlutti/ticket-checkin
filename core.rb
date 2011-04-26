@@ -47,7 +47,6 @@ end
 
 
 get '/' do
-  puts session[:ticket_number]
   haml :signup
 end
 
