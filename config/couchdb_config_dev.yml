@@ -1,0 +1,4 @@
+user: 'tickets'
+password: 'tickets'
+host: '127.0.0.1:5984'
+database: 'ticket-checkin'
