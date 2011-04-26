@@ -33,19 +33,6 @@ get '/ticket_history/:ticket_number' do
   expense_array.to_json
 end
 
-
-def client(params={})
-  OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
-      :site => "http://api.apontador.com.br", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
-      }.merge(params))
-end
-
-def get_db
-  couchdb_config = CouchDBConfig.get_map
-  @db = CouchRest.database!("http://#{couchdb_config['user']}:#{couchdb_config['password']}@#{couchdb_config['host']}/#{couchdb_config['database']}")
-end
-
-
 get '/' do
   haml :signup
 end
@@ -79,12 +66,28 @@ get '/apontador_callback' do
   'Usuário cadastrado com sucesso!'
 end
 
-get '/checkin' do
-  checkin_all
-  ''
+def checkin_all
+  @db = get_db
+  @db.view('users/all')['rows'].each do |row|
+    user = row['value']
+    puts user['name']
+    checkin user
+  end
 end
 
 private
+
+  def client(params={})
+    OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
+        :site => "http://api.apontador.com.br", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
+        }.merge(params))
+  end
+
+  def get_db
+    couchdb_config = CouchDBConfig.get_map
+    @db = CouchRest.database!("http://#{couchdb_config['user']}:#{couchdb_config['password']}@#{couchdb_config['host']}/#{couchdb_config['database']}")
+  end
+
   def get_doc operation, number
     url = "http://www.ticket.com.br/portal/portalcorporativo/dpages/service/consulteseusaldo/seeBalance.jsp?txtOperation=#{operation}&txtCardNumber=#{number}"
     begin
@@ -133,15 +136,6 @@ private
     uri.path = '/apontador_callback'
     uri.query = nil
     uri.to_s
-  end
-  
-  def checkin_all
-    @db = get_db
-    @db.view('users/all')['rows'].each do |row|
-      user = row['value']
-      puts user['name']
-      checkin user
-    end
   end
   
   def checkin user
