@@ -81,6 +81,7 @@ get '/apontador_callback' do
     doc = @db.get(user['user']['id'])
     doc['access_token'] = access_token.token
     doc['access_secret'] = access_token.secret
+    doc['ticket'] = session[:ticket_number]
     @db.save_doc(doc)
     return 'Usuário já cadastrado! Atualizando'
   end
@@ -99,23 +100,15 @@ get '/test_call' do
 end
 
 get '/test_find' do
-  term = URI.escape 'patroni pizza vila olimpia'
-  url = "http://api.apontador.com.br/v1/search/places/byaddress?term=#{term}&state=sp&city=s%C3%A3o%20paulo&category_id=67&type=json"
-  f = open(url, :http_basic_authentication => [ApontadorConfig.get_map['consumer_key'], ApontadorConfig.get_map['consumer_secret']])
-  obj = JSON.parse f.read
-  if (obj['search']['result_count'].to_i > 0 )
-    place_id = obj['search']['places'][0]['place']['id'].to_s
-  end
-  place_id
+  find_place 'patroni pizza vila olimpia'
 end
 
-get '/test_checkin' do
+get '/checkins' do
   @db = get_db
-  place_id = 'C40619741C415O415A'
   doc = @db.get('2164744031')
   puts "#{doc['access_token']} ------ #{doc['access_secret']}"
-  access_token = OAuth::AccessToken.new(client(:scheme => :body, :method => :put), doc['access_token'], doc['access_secret'])
-  response = access_token.put('http://localhost:8080/freeapi/users/self/visits',{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })
+  access_token = OAuth::AccessToken.new(client(:scheme => :query_string), doc['access_token'], doc['access_secret'])
+  response = access_token.get('http://api.apontador.com.br/v1/users/self/visits?type=json',{'Accept'=>'application/json' })
   response.body
 end
 
@@ -129,26 +122,14 @@ get '/couch_test' do
   'funfou'
 end
 
-get '/checkin/:ticket_number' do
-  @db = get_db
-  number = params[:ticket_number]
-  #troque para testar. 0 para prod
-  offset = 3
-  expense_array = get_expenses number, lambda{ |expense| build_date(expense.date) == (Date.today - offset)}
-  expense_array.each do |expense|
-    expense_hash = JSON.parse(expense.to_json)['expense']
-    begin
-      @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => number))
-    rescue Exception => e
-      puts e
-    end
-  end
+get '/checkin' do
+  checkin_all
   ''
 end
 
 get '/test/query' do
   @db = get_db
-  @db.view('unique_expenses/by_date_amount_and_desc', {'key' => ['20/04/2011','14,30',"SAUIPE CAFE E LANCHES LTDA"]})['rows'].inspect 
+  @db.view('unique_expenses/by_date_amount_and_desc', {'key' => ['25/04/2011','14,30',"SAUIPE CAFE E LANCHES LTDA"]})['rows'].length.to_s
 end
 
 private
@@ -201,3 +182,52 @@ private
     uri.query = nil
     uri.to_s
   end
+  
+  def checkin_all
+    @db = get_db
+    @db.view('users/all')['rows'].each do |row|
+      user = row['value']
+      puts user['name']
+      checkin user
+    end
+  end
+  
+  def checkin user
+    #@db = get_db
+    #troque para testar. 0 para prod
+    offset = 1
+    expense_array = get_expenses user['ticket'], lambda{ |expense| build_date(expense.date) == (Date.today - offset)}
+    puts expense_array.length
+    expense_array.each do |expense|
+      expense_hash = JSON.parse(expense.to_json)['expense']
+      begin
+        if @db.view('unique_expenses/by_date_amount_and_desc', {'key' => [expense.date,expense.amount,expense.description]})['rows'].length == 0
+          puts expense.to_json
+          place_id = find_place expense.description
+          if place_id
+            perform_checkin(user, place_id)
+            @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => user['ticket']))  
+          end
+        end
+      rescue Exception => e
+        puts e
+      end
+    end
+  end
+  
+  def find_place term
+    term = URI.escape term
+    url = "http://api.apontador.com.br/v1/search/places/byaddress?term=#{term}&state=sp&city=s%C3%A3o%20paulo&category_id=67&type=json"
+    f = open(url, :http_basic_authentication => [ApontadorConfig.get_map['consumer_key'], ApontadorConfig.get_map['consumer_secret']])
+    obj = JSON.parse f.read
+    if (obj['search']['result_count'].to_i > 0 )
+      place_id = obj['search']['places'][0]['place']['id'].to_s
+    end
+  end
+  
+  def perform_checkin(user, place_id)
+    access_token = OAuth::AccessToken.new(client(:scheme => :body, :method => :put), user['access_token'], user['access_secret'])
+    response = access_token.put('http://api.apontador.com.br/v1/users/self/visits',{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })
+    result = JSON.parse(response.body)
+  end
+  
