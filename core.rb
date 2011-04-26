@@ -38,7 +38,7 @@ end
 
 def client(params={})
   OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
-      :site => "http://localhost:8080", :http_method => :get, :request_token_path => '/freeapi/oauth/request_token', :authorize_path => '/freeapi/oauth/authorize', :access_token_path => '/freeapi/oauth/access_token'
+      :site => "http://api.apontador.com.br", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
       }.merge(params))
 end
 
@@ -60,11 +60,10 @@ post '/process_signup' do
 end
 
 get '/apontador_callback' do
-  request_token = OAuth::RequestToken.new(client(:scheme => :query_string), session[:request_token],session[:request_token_secret])
   access_token=client(:scheme => :query_string).get_access_token(nil,:oauth_callback => redirect_uri, :oauth_verifier => params[:oauth_verifier])
   puts access_token.token
   puts access_token.secret
-  response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/xml' })
+  response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/json' })
   user = JSON.parse(response.body)
   puts user['user']['id']
   puts user['user']['name']
@@ -73,7 +72,10 @@ get '/apontador_callback' do
     @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], :ticket => session[:ticket_number], 
       :access_token => access_token.token, :access_secret => access_token.secret})
   rescue RestClient::Conflict => conflic
-    @db.update_doc(user['user']['id']) {|doc| (doc['access_token'] = access_token.token) && (doc['access_secret'] = access_token.secret)}
+    doc = @db.get(user['user']['id'])
+    doc['access_token'] = access_token.token
+    doc['access_secret'] = access_token.secret
+    @db.save_doc(doc)
     return 'Usuário já cadastrado! Atualizando'
   end
   'Usuário cadastrado com sucesso!'
@@ -108,16 +110,6 @@ get '/test_checkin' do
   puts "#{doc['access_token']} ------ #{doc['access_secret']}"
   access_token = OAuth::AccessToken.new(client(:scheme => :body, :method => :put), doc['access_token'], doc['access_secret'])
   response = access_token.put('http://localhost:8080/freeapi/users/self/visits',{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })
-  response.body
-end
-
-get '/test_checkin_gambi' do
-  @db = get_db
-  place_id = 'C40619741C415O415A'
-  doc = @db.get('2164744031')
-  puts "#{doc['access_token']} ------ #{doc['access_secret']}"
-  access_token = OAuth::AccessToken.new(client(:scheme => :body), doc['access_token'], doc['access_secret'])
-  response = access_token.put('http://localhost:8080/freeapi/users/self/visits',{:type => 'json', :place_id => place_id}.merge(params), {'Accept'=>'application/json' })
   response.body
 end
 
