@@ -146,6 +146,11 @@ get '/checkin/:ticket_number' do
   ''
 end
 
+get '/test/query' do
+  @db = get_db
+  @db.view('unique_expenses/by_date_amount_and_desc', {'key' => ['20/04/2011','14,30',"SAUIPE CAFE E LANCHES LTDA"]})['rows'].inspect 
+end
+
 private
   def get_doc operation, number
     url = "http://www.ticket.com.br/portal/portalcorporativo/dpages/service/consulteseusaldo/seeBalance.jsp?txtOperation=#{operation}&txtCardNumber=#{number}"
