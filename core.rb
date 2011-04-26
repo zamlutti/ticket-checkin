@@ -8,6 +8,8 @@ require 'couchrest'
 require 'utils'
 include Utils
 
+#monkey_patch para put. Melhor colocar em classe externa
+
 module OAuth::RequestProxy::Net
   module HTTP
     class HTTPRequest < OAuth::RequestProxy::Base
@@ -22,6 +24,10 @@ module OAuth::RequestProxy::Net
 end
 
 
+#forma mais simples de habilitar a sessao. Poderia voltar a usar esta
+#enable :sessions 
+
+#Aumentei o tempo para debugar Oauth
 use Rack::Session::Cookie, :key => 'tickets.session',
                            :path => '/',
                            :expire_after => 2592000, # In seconds
