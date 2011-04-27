@@ -141,7 +141,7 @@ private
   def checkin user
     #@db = get_db
     #troque para testar. 0 para prod
-    offset = 1
+    offset = 0
     expense_array = get_expenses user['ticket'], lambda{ |expense| build_date(expense.date) == (Date.today - offset)}
     puts expense_array.length
     expense_array.each do |expense|
