@@ -1,12 +1,12 @@
 %html
-	%head
-		%title
-			'Ticket Checkin'
-		%link{ :rel => 'stylesheet', :href => '/style.css'}
-	%body
-		%div
-			%form{:name => 'signup', :action => 'process_signup', :method => 'post'}
-				%label Ticket número:
-				%input{:type => 'text', :name => 'ticket_number'}
-				%input{:type=>'submit'}
-			%p Em seguida você será direcionado para autenticar-se com o Apontador.
+    %head
+        %title
+            Ticket Checkin
+        %link{ :rel => 'stylesheet', :href => '/style.css'}
+    %body
+        %div
+            %p Faça checkin no Apontador usando o seu Ticket Restaurante.
+            %form{:name => 'signup', :action => 'process_signup', :method => 'post'}
+                %label{:for => 'ticket_number'}
+                %input{:type => 'text', :name => 'ticket_number', :id => 'ticket_number', :placeholder =>  'número do cartão'}
+                %input{:type=>'submit', :value => 'Enviar'}
