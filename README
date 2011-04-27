@@ -1,3 +1,9 @@
 Estou usando sinatra e as demais gems listadas no require do core.
 Inclui um arquivo de mock com meu próprio histórico, comente ou descomente para usá-lo ou não.
-O serviço de consulta da ticket é um pouco instável
+O serviço de consulta da ticket é um pouco instável.
+É necessário criar dois arquivos de configuração:
+
+config/coucdb_config.yml
+config/apontador_credentials.yml
+
+Existem as versões dev na pasta config. O CouchDB você poderá usar uma instância local. Já para o app do Apontador, crie um app de teste ou me mande um email, caso você seja um trusted collaborator, que lhe enviarei as chaves :-D
