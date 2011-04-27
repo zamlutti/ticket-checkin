@@ -1,10 +1,12 @@
 %html
-    %head
-        %title 
-            'Ticket Checkin'
-    %body
-        %h1
-            Digite o número do seu ticket. Em seguida você será direcionado para autenticar-se com o Apontador.
-        %form{:name => 'signup', :action => 'process_signup', :method => 'post'}
-            %input{:type => 'text', :name => 'ticket_number'}
-            %input{:type=>'submit'}
+	%head
+		%title
+			'Ticket Checkin'
+		%link{ :rel => 'stylesheet', :href => '/style.css'}
+	%body
+		%div
+			%form{:name => 'signup', :action => 'process_signup', :method => 'post'}
+				%label Ticket número:
+				%input{:type => 'text', :name => 'ticket_number'}
+				%input{:type=>'submit'}
+			%p Em seguida você será direcionado para autenticar-se com o Apontador.

@@ -1,0 +1,28 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    couchrest (1.0.2)
+      json (~> 1.5.1)
+      mime-types (~> 1.15)
+      rest-client (~> 1.6.1)
+    hpricot (0.8.4)
+    json (1.5.1)
+    mime-types (1.16)
+    oauth (0.4.4)
+    rack (1.2.2)
+    rest-client (1.6.1)
+      mime-types (>= 1.16)
+    sinatra (1.2.3)
+      rack (~> 1.1)
+      tilt (>= 1.2.2, < 2.0)
+    tilt (1.2.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  couchrest
+  hpricot
+  json
+  oauth
+  sinatra
