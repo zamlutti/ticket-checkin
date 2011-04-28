@@ -150,6 +150,11 @@ private
         if @db.view('unique_expenses/by_date_amount_and_desc', {'key' => [expense.date,expense.amount,expense.description]})['rows'].length == 0
           puts expense.to_json
           place_id = find_place expense.description
+          if not place_id
+            #TODO parametrizar multiplas cidades e estados
+            synonyms = @db.view('synonyms/by_name_and_region', {'key' => [expense.description,'SP','São Paulo']})['rows']
+            place_id = find_place synonyms.first['value']['synonym'] unless synonyms.empty?
+          end
           if place_id
             perform_checkin(user, place_id)
             @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => user['ticket']))  
