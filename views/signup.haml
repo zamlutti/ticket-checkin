@@ -1,12 +1,18 @@
+!!! 5
 %html
     %head
         %title
             Ticket Checkin
-        %link{ :rel => 'stylesheet', :href => '/style.css'}
+        %link{:rel => 'stylesheet', :href => '/style.css'}
     %body
+        %h1 Tem preguiça de fazer checkin?
         %div
-            %p Faça checkin no Apontador usando o seu Ticket Restaurante.
+            %p
+                Forneça o número de seu ticket e autorize seu usuário do
+                %a{:href => 'http://www.apontador.com.br', :target => 'blank'}
+                    Apontador
+                \.
+                Depois disso, sempre que identificarmos um gasto novo, faremos automaticamente o checkin.
             %form{:name => 'signup', :action => 'process_signup', :method => 'post'}
-                %label{:for => 'ticket_number'}
-                %input{:type => 'text', :name => 'ticket_number', :id => 'ticket_number', :placeholder =>  'número do cartão'}
-                %input{:type=>'submit', :value => 'Enviar'}
+                %input{:type => 'text', :name => 'ticket_number', :id => 'ticket_number', :placeholder =>  '1234 5678 9123 4567'}
+                %input{:type => 'submit', :value => 'Enviar'}
