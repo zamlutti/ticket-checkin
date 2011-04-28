@@ -1,3 +1,13 @@
+#TODO refatorar estes testes para rodarem automaticamente
+
+get '/test_syn' do
+  place_id = nil
+  if not place_id
+    synonyms = get_db.view('synonyms/by_name_and_region', {'key' => ['USIEL REST','SP','São Paulo']})['rows']
+    place_id = find_place synonyms.first['value']['synonym'] unless synonyms.empty?
+  end
+  place_id
+end
 
 get '/test_find' do
   find_place 'patroni pizza vila olimpia'
