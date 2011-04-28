@@ -9,10 +9,14 @@
         %div
             %p
                 Forneça o número de seu ticket e autorize seu usuário do
-                %a{:href => 'http://www.apontador.com.br', :target => 'blank'}
+                %a{:href => 'http://www.apontador.com.br', :target => 'blank', :id => 'apt'}
                     Apontador
                 \.
                 Depois disso, sempre que identificarmos um gasto novo, faremos automaticamente o checkin.
             %form{:name => 'signup', :action => 'process_signup', :method => 'post'}
-                %input{:type => 'text', :name => 'ticket_number', :id => 'ticket_number', :placeholder =>  '1234 5678 9123 4567'}
+                %input{:type => 'text', :name => 'ticket_number', :id => 'ticket_number', :placeholder =>  '1234 5678 9123 4567', :maxlength => '16'}
                 %input{:type => 'submit', :value => 'Enviar'}
+        %span
+            powered by
+            %a{:href => 'http://api.apontador.com.br/', :target =>'blank'}
+                Apontador API
