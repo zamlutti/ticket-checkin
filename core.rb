@@ -116,10 +116,10 @@ private
     expense_array = Array.new
     history_array.each do |elem|
       descricao = elem['descricao']
-      index =  descricao =~ /COMPRAS -/
+      index =  descricao =~ /COMPRA -|COMPRAS -/
       if index
         expense = Expense.new
-        expense.description = descricao[10..descricao.length]
+        expense.description = descricao[(Regexp.last_match(0).length + 1)..descricao.length]
         expense.date = elem['data']
         expense.amount = elem['valor']
         return expense_array if (filter && (not filter.call(expense)))
@@ -141,7 +141,7 @@ private
   def checkin user
     #@db = get_db
     #troque para testar. 0 para prod
-    offset = 1
+    offset = 0
     expense_array = get_expenses user['ticket'], lambda{ |expense| build_date(expense.date) == (Date.today - offset)}
     puts expense_array.length
     expense_array.each do |expense|
