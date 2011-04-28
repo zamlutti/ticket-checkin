@@ -38,7 +38,8 @@ get '/' do
 end
 
 post '/process_signup' do
-  session[:ticket_number] = params[:ticket_number]
+  redirect '/' unless params[:ticket_number].length > 0
+  session[:ticket_number] = params[:ticket_number].delete(' ')
   request_token=client(:scheme => :query_string).get_request_token(:oauth_callback => redirect_uri)
   redirect request_token.authorize_url
 end
