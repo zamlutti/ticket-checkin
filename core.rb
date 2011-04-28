@@ -151,6 +151,7 @@ private
           puts expense.to_json
           place_id = find_place expense.description
           if not place_id
+            puts 'Não encontrado' + expense.description
             #TODO parametrizar multiplas cidades e estados
             synonyms = @db.view('synonyms/by_name_and_region', {'key' => [expense.description,'SP','São Paulo']})['rows']
             place_id = find_place synonyms.first['value']['synonym'] unless synonyms.empty?
@@ -167,8 +168,15 @@ private
   end
   
   def find_place term
+    #busca restaurante
+    place_id = find_place_category term, 67
+    #senao tenta lanchonete
+    place_id ||= find_place_category term, 3 
+  end
+  
+  def find_place_category term, category
     term = URI.escape term
-    url = "http://api.apontador.com.br/v1/search/places/byaddress?term=#{term}&state=sp&city=s%C3%A3o%20paulo&category_id=67&type=json"
+    url = "http://api.apontador.com.br/v1/search/places/byaddress?term=#{term}&state=sp&city=s%C3%A3o%20paulo&category_id=#{category}&type=json"
     f = open(url, :http_basic_authentication => [ApontadorConfig.get_map['consumer_key'], ApontadorConfig.get_map['consumer_secret']])
     obj = JSON.parse f.read
     if (obj['search']['result_count'].to_i > 0 )
