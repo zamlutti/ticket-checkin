@@ -6,13 +6,24 @@
         %link{:rel => 'stylesheet', :href => '/style.css'}
     %body
         %h1 Tem preguiça de fazer checkin?
-        %div
+        #card
             %p
-                Forneça o número de seu ticket e autorize seu usuário do
-                %a{:href => 'http://www.apontador.com.br', :target => 'blank'}
-                    Apontador
+                Forneça o número de seu ticket e autorize seu usuário do&nbsp;
+                %a{:href => 'http://www.apontador.com.br', :target => 'blank'}>Apontador
                 \.
                 Depois disso, sempre que identificarmos um gasto novo, faremos automaticamente o checkin.
             %form{:name => 'signup', :action => 'process_signup', :method => 'post'}
                 %input{:type => 'text', :name => 'ticket_number', :id => 'ticket_number', :placeholder =>  '1234 5678 9123 4567'}
-                %input{:type => 'submit', :value => 'Enviar'}
+                %input{:type => 'submit', :value => 'Enviar', :id => 'button_'}
+            %a{:href => 'http://api.apontador.com.br', :target => 'blank'}
+                #apontador_power
+        #disclaimer
+            Desenvolvido por&nbsp;
+            %a{:href => 'http://www.twitter.com/tganzarolli', :target => 'blank'}>@tganzarolli
+            , com design de&nbsp;
+            %a{:href => 'http://www.apontador.com.br/profile/index/2201721751.html', :target => 'blank'}>Karen Zamluti
+            , baseado em uma conversa de&nbsp;
+            %a{:href => 'http://www.twitter.com/chesterbr', :target => 'blank'}>@chesterbr
+            &nbsp;e&nbsp;
+            %a{:href => 'http://www.twitter.com/bani', :target => 'blank'}>@bani
+            \. Este não é um aplicativo oficial da Ticket(Accor) nem do Apontador. Todos os direitos reservados às respectivas marcas.
