@@ -56,7 +56,7 @@ get '/apontador_callback' do
   puts user['user']['name']
   @db = get_db
   begin
-    @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], :ticket => session[:card_number], 
+    @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], :accor_ticket => session[:card_number], 
       :access_token => access_token.token, :access_secret => access_token.secret})
   rescue RestClient::Conflict => conflic
     doc = @db.get(user['user']['id'])
@@ -104,8 +104,8 @@ private
     #@db = get_db
     #troque para testar. 0 para prod
     offset = 0
-    ticket_number = user['ticket'] || user['visa_ticket']
-    brand = (user['ticket']) ? 'Accor' : 'Visa'
+    ticket_number = user['accor_ticket'] || user['visa_ticket']
+    brand = (user['accor_ticket']) ? 'Accor' : 'Visa'
     manager = Kernel.const_get "#{brand.capitalize}ExpensesManager"
     expense_array = manager.get_expenses ticket_number, lambda{ |expense| build_date(expense.date) == (Date.today - offset)}
     puts expense_array.length
@@ -123,7 +123,7 @@ private
           end
           if place_id
             perform_checkin(user, place_id)
-            @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => user['ticket']))  
+            @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => ticket_number))  
           end
         end
       rescue Exception => e
