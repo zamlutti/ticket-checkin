@@ -42,6 +42,7 @@ end
 post '/process_signup' do
   redirect '/' unless params[:card_number].length > 0
   session[:card_number] = params[:card_number].delete(' ')
+  session[:card_type] = 'accor'
   request_token=client(:scheme => :query_string).get_request_token(:oauth_callback => redirect_uri)
   redirect request_token.authorize_url
 end
@@ -56,13 +57,13 @@ get '/apontador_callback' do
   puts user['user']['name']
   @db = get_db
   begin
-    @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], :ticket => session[:card_number], 
+    @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], "#{session[:card_type]}_ticket".to_sym => session[:card_number], 
       :access_token => access_token.token, :access_secret => access_token.secret})
   rescue RestClient::Conflict => conflic
     doc = @db.get(user['user']['id'])
     doc['access_token'] = access_token.token
     doc['access_secret'] = access_token.secret
-    doc['ticket'] = session[:card_number]
+    doc["#{session[:card_type]}_ticket"] = session[:card_number]
     @db.save_doc(doc)
     return 'Usuário já cadastrado! Atualizando'
   end
@@ -104,8 +105,8 @@ private
     #@db = get_db
     #troque para testar. 0 para prod
     offset = 0
-    ticket_number = user['ticket'] || user['visa_ticket']
-    brand = (user['ticket']) ? 'Accor' : 'Visa'
+    ticket_number = user['accor_ticket'] || user['visa_ticket']
+    brand = (user['accor_ticket']) ? 'Accor' : 'Visa'
     manager = Kernel.const_get "#{brand.capitalize}ExpensesManager"
     expense_array = manager.get_expenses ticket_number, lambda{ |expense| build_date(expense.date) == (Date.today - offset)}
     puts expense_array.length
@@ -123,7 +124,7 @@ private
           end
           if place_id
             perform_checkin(user, place_id)
-            @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => user['ticket']))  
+            @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => ticket_number))  
           end
         end
       rescue Exception => e
