@@ -42,7 +42,7 @@ end
 post '/process_signup' do
   redirect '/' unless params[:card_number].length > 0
   session[:card_number] = params[:card_number].delete(' ')
-  session[:card_type] = 'accor'
+  session[:card_type] = params[:card_type]
   request_token=client(:scheme => :query_string).get_request_token(:oauth_callback => redirect_uri)
   redirect request_token.authorize_url
 end

@@ -14,8 +14,8 @@
                 Depois disso, sempre que for identificado um gasto novo, o checkin no Apontador será feito automaticamente.
             %form{:name => 'signup', :action => 'process_signup', :method => 'post'}
                 %select#card_type
-                    %option{:value => 'tr'}Ticket Restaurante
-                    %option{:value => 'visa_vale'}Visa Vale
+                    %option{:value => 'accor'}Ticket Restaurante
+                    %option{:value => 'vale'}Visa Vale
                 %input{:type => 'text', :name => 'card_number', :id => 'card_number', :placeholder =>  'número do ticket'}
                 %input{:type => 'submit', :value => 'Enviar', :id => 'button_', :class => 'gray'}
             #card_images
