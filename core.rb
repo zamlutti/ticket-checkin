@@ -53,8 +53,6 @@ get '/apontador_callback' do
   puts access_token.secret
   response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/json' })
   user = JSON.parse(response.body)
-  puts user['user']['id']
-  puts user['user']['name']
   @db = get_db
   begin
     @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], "#{session[:card_type]}_ticket".to_sym => session[:card_number], 
