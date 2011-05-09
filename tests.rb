@@ -1,4 +1,6 @@
-#TODO refatorar estes testes para rodarem automaticamente
+require 'sinatra'
+require 'core'
+
 
 get '/test_syn' do
   place_id = nil
