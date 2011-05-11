@@ -51,7 +51,7 @@ get '/apontador_callback' do
   access_token=client(:scheme => :query_string).get_access_token(nil,:oauth_callback => redirect_uri, :oauth_verifier => params[:oauth_verifier])
   puts access_token.token
   puts access_token.secret
-  response = access_token.get('http://api.apontador.com.br/v1/users/self?type=json',{ 'Accept'=>'application/json' })
+  response = access_token.get('http://localhost:8080/freeapi/users/self?type=json',{ 'Accept'=>'application/json' })
   user = JSON.parse(response.body)
   @db = get_db
   begin
@@ -81,7 +81,7 @@ private
 
   def client(params={})
     OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
-        :site => "http://api.apontador.com.br", :http_method => :get, :request_token_path => '/v1/oauth/request_token', :authorize_path => '/v1/oauth/authorize', :access_token_path => '/v1/oauth/access_token'
+        :site => "http://localhost:8080", :http_method => :get, :request_token_path => '/freeapi/oauth/request_token', :authorize_path => '/freeapi/oauth/authorize', :access_token_path => '/freeapi/oauth/access_token'
         }.merge(params))
   end
 
