@@ -59,6 +59,8 @@ get '/apontador_callback' do
   user = JSON.parse(response.body)
   @db = get_db
   begin
+    @mensagem = "#{user['user']['name']}, você acaba de registar seu vale/ticket da #{session[:card_type].capitalize} de número #{session[:card_number]} no sanduicheck.in. Agora é só usar o"
+    @mensagem = @mensagem + " seu cartão e aguardar o check-in automático em seguida. Você pode retornar ao site e se logar para ver seu histórico e outras opções."
     @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], "#{session[:card_type]}_ticket".to_sym => session[:card_number], 
       :access_token => access_token.token, :access_secret => access_token.secret})
   rescue RestClient::Conflict => conflic
@@ -67,9 +69,9 @@ get '/apontador_callback' do
     doc['access_secret'] = access_token.secret
     doc["#{session[:card_type]}_ticket"] = session[:card_number]
     @db.save_doc(doc)
-    return 'Usuário já cadastrado! Atualizando'
+    @mensagem = "#{user['user']['name']}, você já havia registrado um ticket conosco. Ele acaba de ser atualizado para o vale/ticket da #{session[:card_type].capitalize} de número #{session[:card_number]} no sanduicheck.in."
   end
-  'Usuário cadastrado com sucesso!'
+  haml :success
 end
 
 get '/apontador_login_callback' do
@@ -79,13 +81,9 @@ get '/apontador_login_callback' do
   username = params[:name]
   userid = params[:userid]
   token = params[:token]
-  puts "#{username} | #{userid}"
   
   signature_base = "consumerkey=#{params[:consumerkey]}&name=#{username}&token=#{token}&url=#{params[:url]}&userid=#{userid}"
-  puts signature_base
   mysignature = Base64.encode64((encoder << signature_base).digest).strip
-  puts mysignature
-  puts params[:signature]
   raise Exception "Assinatura inválida" unless mysignature == params[:signature]
   
   timestamp = Time.now.to_i
@@ -96,7 +94,9 @@ get '/apontador_login_callback' do
   begin 
     f = open(url_check)
     check_map = JSON.parse(f.read.gsub("'", "\""))
-    check_map['name']
+    #se for trusted terei email, token, token_secret adicionais
+    #puts check_map['token_secret']
+    check_map['name'] + '|' + check_map['userid']
   rescue Exception => e
     puts e
   end
