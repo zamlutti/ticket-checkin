@@ -12,5 +12,5 @@ cd $target
 ls -la
 git add .
 git commit -m 'deploy'
-git push origin master
+git push -f origin master
 
