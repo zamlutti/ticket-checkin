@@ -4,3 +4,4 @@ hpricot
 oauth
 couchrest
 haml
+ruby-hmac
