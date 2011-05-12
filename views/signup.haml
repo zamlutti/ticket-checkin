@@ -11,7 +11,7 @@
             Juntando a fome com a vontade de socializar.
         #header
             %img{:src => '/images/sanduicheckin.png'}
-        #login{:style => 'display:block'}
+        #login{:style => 'display:none'}
             %a{:href=>"http://#{ApontadorConfig.get_map['auth_host']}/?key=#{@consumer_key}&perms=api&fc=#{@callback_login}"}
                 login
         #card   
