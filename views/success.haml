@@ -7,35 +7,17 @@
         %script{:src => 'http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js', :type => 'text/javascript'}
         %script{:src => '/js/jquery.meio.mask.min.js', :type => 'text/javascript'}
     %body
-        %h2
-            Juntando a fome com a vontade de socializar.
         #header
-            %img{:src => '/images/sanduicheckin.png'}
-        #login{:style => 'display:block'}
+            %a{:href=>'/'}
+                %img{:src => '/images/sanduicheckin.png', :style=>'cursor:pointer;'}
+            %h2
+                Bom apetite!
+        #login{:style => 'display:none'}
             %a{:href=>"http://#{ApontadorConfig.get_map['auth_host']}/?key=#{@consumer_key}&perms=api&fc=#{@callback_login}"}
                 login
-        #card   
-            %p#text
-                Tem preguiça de fazer checkin?
-                %br
-                Forneça o número de seu ticket e autorize seu usuário do&nbsp;
-                %a{:href => 'http://www.apontador.com.br', :target => 'blank'}>Apontador
-                \.
-                Depois disso, sempre que for identificado um gasto novo, o checkin no Apontador será feito automaticamente.
-            %form{:name => 'signup', :action => 'process_signup', :method => 'post'}
-                %select#card_type{:name => 'card_type'}
-                    %option{:value => 'accor'}Ticket Restaurante
-                    %option{:value => 'visa'}Visa Vale
-                %input{:type => 'text', :name => 'card_number', :id => 'card_number', :class => 'ticket', :placeholder => 'número do ticket'}
-                %input{:type => 'submit', :value => 'Enviar', :id => 'button_', :class => 'gray'}
-            #card_images
-                %span
-                    Aceitamos
-                .clear
-                %img{:src => '/images/iconTicket.png'}
-                %img{:src => '/images/visa.png'}
-            %a{:href => 'http://api.apontador.com.br', :target => 'blank'}
-                #apontador_power
+        #sucesso
+            %p
+                =@mensagem
         .clear
         #disclaimer
             Desenvolvido por&nbsp;

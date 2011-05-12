@@ -34,6 +34,14 @@ get '/couch_test' do
   'funfou'
 end
 
+get '/success' do
+  #@mensagem = "#{name}, você já havia registrado um ticket conosco. Ele acaba de ser atualizado para o vale/ticket da #{flag} de número #{} no sanduicheck.in."
+  #@mensagem = "#{name}, você acaba de registar seu vale/ticket da #{flag} de número #{} no sanduicheck.in. Agora é só usar o"
+  #@mensagem = @mensagem + "seu cartão e aguardar o check-in automático em seguida. Você pode retornar ao site e se logar para ver seu histórico e outras opções."
+  @mensagem = "Ola troasas sasasa sa s"
+  haml :success
+end
+
 get '/test_call' do
   @db = get_db
   doc = @db.get('2164744031')
