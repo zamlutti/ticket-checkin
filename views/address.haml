@@ -1,0 +1,9 @@
+
+    %form{:name => 'signup', :action => 'process_signup', :method => 'post'}
+        %select#card_type{:name => 'state'}
+            %option{:value => 'SP'}São Paulo
+        %input{:type => 'text', :name => 'city', :id => 'city', :class => 'ticket', :placeholder => 'Sanduichopólis'}
+        %input{:type => 'text', :name => 'address', :id => 'address', :class => 'ticket', :placeholder => 'Av José Sanduba'}
+        %input{:type => 'text', :name => 'number', :id => 'number', :class => 'ticket', :placeholder => '200'}
+    
+        %input{:type => 'submit', :value => 'Enviar', :id => 'button_', :class => 'gray'}

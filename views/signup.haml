@@ -9,7 +9,10 @@
     %body
         #header
             %img{:src => '/images/sanduicheckin.png'}
-        #card
+        #login{:style => 'display:none'}
+            %a{:href=>"http://#{ApontadorConfig.get_map['auth_host']}/?key=#{@consumer_key}&perms=api&fc=#{@callback_login}"}
+                login
+        #card   
             %p#text
                 Tem preguiça de fazer checkin?
                 %br

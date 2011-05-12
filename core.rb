@@ -8,6 +8,8 @@ require 'couchrest'
 require 'utils'
 require 'accor_ticket'
 require 'visa_ticket'
+require 'base64'
+require 'hmac-sha1'
 include Utils
 
 #monkey_patch para put. Melhor colocar em classe externa
@@ -36,6 +38,8 @@ get '/ticket_history/:card_number' do
 end
 
 get '/' do
+  @consumer_key = ApontadorConfig.get_map['consumer_key']
+  @callback_login = redirect_uri('/apontador_login_callback')
   haml :signup
 end
 
@@ -51,7 +55,7 @@ get '/apontador_callback' do
   access_token=client(:scheme => :query_string).get_access_token(nil,:oauth_callback => redirect_uri, :oauth_verifier => params[:oauth_verifier])
   puts access_token.token
   puts access_token.secret
-  response = access_token.get('http://localhost:8080/freeapi/users/self?type=json',{ 'Accept'=>'application/json' })
+  response = access_token.get("http://#{ApontadorConfig.get_map['api_host']}/#{ApontadorConfig.get_map['api_sufix']}/users/self?type=json",{ 'Accept'=>'application/json' })
   user = JSON.parse(response.body)
   @db = get_db
   begin
@@ -68,6 +72,37 @@ get '/apontador_callback' do
   'Usuário cadastrado com sucesso!'
 end
 
+get '/apontador_login_callback' do
+  
+  encoder = HMAC::SHA1.new(ApontadorConfig.get_map['consumer_secret'])
+  
+  username = params[:name]
+  userid = params[:userid]
+  token = params[:token]
+  puts "#{username} | #{userid}"
+  
+  signature_base = "consumerkey=#{params[:consumerkey]}&name=#{username}&token=#{token}&url=#{params[:url]}&userid=#{userid}"
+  puts signature_base
+  mysignature = Base64.encode64((encoder << signature_base).digest).strip
+  puts mysignature
+  puts params[:signature]
+  raise Exception "Assinatura inválida" unless mysignature == params[:signature]
+  
+  timestamp = Time.now.to_i
+  signature_check_base = "key=#{ApontadorConfig.get_map['consumer_key']}&token=#{token}&ts=#{timestamp}&userid=#{userid}"
+  signature_check = Base64.encode64((encoder << signature_check_base).digest).strip
+  path_check = "/check?token=#{token}&userid=#{userid}&ts=#{timestamp}&key=#{ApontadorConfig.get_map['consumer_key']}&signature=#{signature_check}"
+  url_check = 'http://'+ ApontadorConfig.get_map['auth_host'] + path_check
+  begin 
+    f = open(url_check)
+    check_map = JSON.parse(f.read.gsub("'", "\""))
+    check_map['name']
+  rescue Exception => e
+    puts e
+  end
+
+end
+
 def checkin_all
   @db = get_db
   @db.view('users/all')['rows'].each do |row|
@@ -81,7 +116,7 @@ private
 
   def client(params={})
     OAuth::Consumer.new(ApontadorConfig.get_map['consumer_key'],ApontadorConfig.get_map['consumer_secret'], {
-        :site => "http://localhost:8080", :http_method => :get, :request_token_path => '/freeapi/oauth/request_token', :authorize_path => '/freeapi/oauth/authorize', :access_token_path => '/freeapi/oauth/access_token'
+        :site => 'http://' + ApontadorConfig.get_map['api_host'], :http_method => :get, :request_token_path => "/#{ApontadorConfig.get_map['api_sufix']}/oauth/request_token", :authorize_path => "/#{ApontadorConfig.get_map['api_sufix']}/oauth/authorize", :access_token_path => "/#{ApontadorConfig.get_map['api_sufix']}/oauth/access_token"
         }.merge(params))
   end
 
@@ -91,10 +126,9 @@ private
   end
 
   
-
-  def redirect_uri
+  def redirect_uri(path=nil)
     uri = URI.parse(request.url)
-    uri.path = '/apontador_callback'
+    uri.path = path || '/apontador_callback'
     uri.query = nil
     uri.to_s
   end
@@ -140,7 +174,7 @@ private
   
   def find_place_category term, category
     term = URI.escape term
-    url = "http://api.apontador.com.br/v1/search/places/byaddress?term=#{term}&state=sp&city=s%C3%A3o%20paulo&category_id=#{category}&type=json"
+    url = "http://#{ApontadorConfig.get_map['api_host']}/#{ApontadorConfig.get_map['api_sufix']}/search/places/byaddress?term=#{term}&state=sp&city=s%C3%A3o%20paulo&category_id=#{category}&type=json"
     f = open(url, :http_basic_authentication => [ApontadorConfig.get_map['consumer_key'], ApontadorConfig.get_map['consumer_secret']])
     obj = JSON.parse f.read
     if (obj['search']['result_count'].to_i > 0 )
@@ -150,7 +184,7 @@ private
   
   def perform_checkin(user, place_id)
     access_token = OAuth::AccessToken.new(client(:scheme => :body, :method => :put), user['access_token'], user['access_secret'])
-    response = access_token.put('http://api.apontador.com.br/v1/users/self/visits',{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })
+    response = access_token.put("http://#{ApontadorConfig.get_map['api_host']}/#{ApontadorConfig.get_map['api_sufix']}/users/self/visits",{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })
     result = JSON.parse(response.body)
   end
   
