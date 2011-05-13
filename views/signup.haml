@@ -7,14 +7,17 @@
         %script{:src => 'http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js', :type => 'text/javascript'}
         %script{:src => '/js/jquery.meio.mask.min.js', :type => 'text/javascript'}
     %body
-        %h2
-            Juntando a fome com a vontade de socializar.
         #header
-            %img{:src => '/images/sanduicheckin.png'}
+            %h1#logo
+                %a{:href => '/'}
+                    Sanduicheck.in
+                    %span
+            %h2
+                Juntando a fome com a vontade de socializar.
         #login{:style => 'display:none'}
             %a{:href=>"http://#{ApontadorConfig.get_map['auth_host']}/?key=#{@consumer_key}&perms=api&fc=#{@callback_login}"}
                 login
-        #card   
+        #card
             %p#text
                 Tem preguiça de fazer checkin?
                 %br
