@@ -13,6 +13,7 @@ GEM
     rack (1.2.2)
     rest-client (1.6.1)
       mime-types (>= 1.16)
+    ruby-hmac (0.4.0)
     sinatra (1.2.3)
       rack (~> 1.1)
       tilt (>= 1.2.2, < 2.0)
@@ -27,4 +28,5 @@ DEPENDENCIES
   hpricot
   json
   oauth
+  ruby-hmac
   sinatra
