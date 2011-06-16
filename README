@@ -6,4 +6,8 @@ O serviço de consulta da ticket é um pouco instável.
 config/coucdb_config.yml
 config/apontador_credentials.yml
 
+Para recarregar automaticamente o Sinatra, recomendo usar a gem shotgun. Basta então executar a aplicação desta forma:
+
+shotgun config.ru -p 4567 
+
 Existem as versões dev na pasta config. O CouchDB você poderá usar uma instância local. Já para o app do Apontador, crie um app de teste ou me mande um email, caso você seja um trusted collaborator, que lhe enviarei as chaves :-D
