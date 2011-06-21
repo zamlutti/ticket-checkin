@@ -29,9 +29,10 @@ end
 
 enable :sessions 
 
-get '/ticket_history/:card_number' do
+get '/ticket_history/:brand/:card_number' do
   number = params[:card_number]
-  expense_array = get_expenses number
+  manager = Kernel.const_get "#{params[:brand].capitalize}ExpensesManager"
+  expense_array = manager.get_expenses number
   #haml :history
   #expense_array[0]
   expense_array.to_json
