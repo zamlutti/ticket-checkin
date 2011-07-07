@@ -5,3 +5,5 @@ oauth
 couchrest
 haml
 ruby-hmac
+rqrcode
+rmagick
