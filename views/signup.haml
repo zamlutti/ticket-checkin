@@ -27,8 +27,8 @@
                     %span
             %h2
                 Juntando a fome com a vontade de socializar.
-        #login{:style => 'display:none'}
-            %a{:href=>"http://#{ApontadorConfig.get_map['auth_host']}/?key=#{@consumer_key}&perms=api&fc=#{@callback_login}"}
+        #login
+            %a{:href=>"http://#{ApontadorConfig.get_map['auth_host']}/?key=#{@consumer_key}&perms=api&fc=#{@callback_login}&signature=#{@mysignature}&url=#{@url}"}
                 login
         #card
             %p#text
