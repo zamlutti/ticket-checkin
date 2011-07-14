@@ -101,7 +101,7 @@ get '/qrcode_table/:place_id' do
 end
 
 get '/qrcode_img/:place_id/:size' do
-  qr = RQRCode::QRCode.new(redirect_uri("/auto_checkin/#{params[:place_id]}"), :level => :q)
+  qr = RQRCode::QRCode.new(redirect_uri("/auto_checkin/#{params[:place_id]}"), :size => 5, :level => :q)
   img = QRImage.new(qr).sample(params[:size].to_f)
   img.to_blob
 end
