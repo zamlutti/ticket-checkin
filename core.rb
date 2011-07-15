@@ -40,6 +40,21 @@ get '/ticket_history/:brand/:card_number' do
   expense_array.to_json
 end
 
+post '/sms_gtw' do
+  if (params[:secret] != 'cld!5cTgs')
+    return 'NOK'
+  end
+  from = params[:from]
+#  @db.view('user/by_phone', {'key' => [user.,from]})['rows']
+  
+  lbsid = params[:message]
+  puts "---------"
+  puts lbsid
+  puts from
+  "OK"
+ # perform_checkin user, params[:place_id]
+end
+
 get '/' do
   @consumer_key = ApontadorConfig.get_map['consumer_key']
   @callback_login = redirect_uri('/apontador_login_callback')
