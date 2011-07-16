@@ -23,7 +23,7 @@ h2{font-size:1.1em;padding:55px 0 0 10px;}
 #card_images span{font-size:10pt;}
 #apontador_power{background:transparent url(/images/apontador_power_small.png) no-repeat;width:100px;height:60px;margin:70px 50px 0 0;float:right}
 #disclaimer{padding-top:50px;font-size:0.8em;text-align:center;width:800px;margin:auto;}
-#login{text-align:right;width:500px;margin:0 auto;display:none;}
+#login{text-align:right;width:500px;margin:0 auto;display:block;}
 #sucesso p{margin:50px;}
 
 
