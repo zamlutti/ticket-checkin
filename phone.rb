@@ -1,7 +1,7 @@
 
 
 get '/to_verify' do
-  phone = params[:phone]
+  phone = params[:phone].to_i
   verifier = '#'+(Time.now+rand*10**10+phone).to_i().to_s(36).upcase  
 end
 
@@ -32,7 +32,7 @@ post '/verify' do
     if result.size > 0
       user = result[0]['value']
       if user['phone_verifier'] == received_verifier
-        user['phone_verifier'] == nil
+        user['phone_verifier'] = nil
         @db.save_doc(user)
       end
     end
