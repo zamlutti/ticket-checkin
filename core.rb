@@ -12,6 +12,8 @@ require 'base64'
 require 'hmac-sha1'
 require 'rqrcode'
 require 'qr_image'
+require 'phone'
+require 'qrcode'
 include Utils
 
 #monkey_patch para put. Melhor colocar em classe externa
@@ -40,70 +42,7 @@ get '/ticket_history/:brand/:card_number' do
   expense_array.to_json
 end
 
-get '/to_verify' do
-  phone = params[:phone]
-  verifier = '#'+(Time.now+rand*10**10+phone).to_i().to_s(36).upcase  
-end
 
-FAIL_PAYLOAD = " {
-      \"payload\": {
-        \"success\": \"false\"
-    }
-} "
-
-SUCCESS_PAYLOAD = "
-       {
-             \"payload\": {
-               \"success\": \"true\"
-           }
-       } "
-
-post '/verify' do
-  received_verifier = params[:message].upcase
-    
-  if ((params[:secret] != 'cld!5cTgsas') || (/^#.+$/ =~ received_verifier).nil?)
-    return FAIL_PAYLOAD
-  end
-  
-  from = params[:from]
-  @db = get_db
-  begin
-    result = @db.view('users/by_phone', {'key' => [from]})['rows']
-    if result.size > 0
-      user = result[0]['value']
-      if user['phone_verifier'] == received_verifier
-        user['phone_verifier'] == nil
-        @db.save_doc(user)
-      end
-    end
-  rescue Exception => e
-    puts e
-  end
-  SUCCESS_PAYLOAD 
-end
-
-post '/sms_gtw' do
-
-  if (params[:secret] != 'cld!5cTgsas')
-    return FAIL_PAYLOAD
-  end
-  from = params[:from]
-  lbsid = params[:message]
-  @db = get_db
-  begin
-    result = @db.view('users/by_phone', {'key' => [from]})['rows']
-    if result.size > 0
-      user = result[0]['value']
-      perform_checkin user, lbsid unless user['phone_verifier']
-    end
-  rescue Exception => e
-    puts e
-  end
-  puts "----------"
-  puts lbsid
-  puts from
-  SUCCESS_PAYLOAD
-end
 
 get '/' do
   @consumer_key = ApontadorConfig.get_map['consumer_key']
@@ -158,40 +97,6 @@ get '/apontador_login_callback' do
   #realizar o check
   check_user response, params
 
-end
-
-get '/qrcode_table/:place_id' do
-   @qr = RQRCode::QRCode.new(redirect_uri("/auto_checkin/#{params[:place_id]}"), :level => :q)
-   haml :qrcode_table
-end
-
-get '/qrcode_img/:place_id/:size' do
-  qr = RQRCode::QRCode.new(redirect_uri("/auto_checkin/#{params[:place_id]}"), :size => 5, :level => :q)
-  img = QRImage.new(qr).sample(params[:size].to_f)
-  img.to_blob
-end
-
-get '/qrcode/:place_id/:size' do
-    @url = create_image_url params[:place_id], params[:size]
-    haml :qrcode_img
-end
-
-get '/qrcode/:place_id' do
-    @url = create_image_url params[:place_id]
-    haml :qrcode_img
-end
-
-def create_image_url place_id, size_code=nil
-  if (not size_code) || (size_code == 'P')
-    size = 6
-  elsif size_code == 'M'
-    size = 8
-  elsif size_code == 'G'
-    size = 12
-  else 
-    raise Exception, "Erro tamanho"
-  end
-  redirect_uri("/qrcode_img/#{place_id}/#{size}")
 end
 
 
