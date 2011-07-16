@@ -45,11 +45,12 @@ get '/to_verify' do
   verifier = '#'+(Time.now+rand*10**10+phone).to_i().to_s(36).upcase  
 end
 
-FAIL_PAYLOAD = {
+FAIL_PAYLOAD = " {
       \"payload\": {
         \"success\": \"false\"
     }
 } "
+
 SUCCESS_PAYLOAD = "
        {
              \"payload\": {
@@ -60,7 +61,7 @@ SUCCESS_PAYLOAD = "
 post '/verify' do
   received_verifier = params[:message].upcase
     
-  if ((params[:secret] != 'cld!5cTgsas') || (not /^#.+$/ =~ received_verifier))
+  if ((params[:secret] != 'cld!5cTgsas') || (/^#.+$/ =~ received_verifier).nil?)
     return FAIL_PAYLOAD
   end
   
@@ -107,7 +108,7 @@ end
 get '/' do
   @consumer_key = ApontadorConfig.get_map['consumer_key']
   @callback_login = redirect_uri('/apontador_login_callback')
-  @url = redirect_uri('/meh')
+  @url = redirect_uri('/')
   encoder = HMAC::SHA1.new(ApontadorConfig.get_map['consumer_secret'])
   signature_base = "fc=#{@callback_login}&key=#{@consumer_key}&perms=api&url=#{@url}"
   @mysignature = Base64.encode64((encoder << signature_base).digest).strip
