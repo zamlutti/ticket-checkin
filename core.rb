@@ -40,15 +40,51 @@ get '/ticket_history/:brand/:card_number' do
   expense_array.to_json
 end
 
-post '/sms_gtw' do
+get '/to_verify' do
+  phone = params[:phone]
+  verifier = '#'+(Time.now+rand*10**10+phone).to_i().to_s(36).upcase  
+end
+
+FAIL_PAYLOAD = {
+      \"payload\": {
+        \"success\": \"false\"
+    }
+} "
+SUCCESS_PAYLOAD = "
+       {
+             \"payload\": {
+               \"success\": \"true\"
+           }
+       } "
+
+post '/verify' do
+  received_verifier = params[:message].upcase
+    
+  if ((params[:secret] != 'cld!5cTgsas') || (not /^#.+$/ =~ received_verifier))
+    return FAIL_PAYLOAD
+  end
   
+  from = params[:from]
+  @db = get_db
+  begin
+    result = @db.view('users/by_phone', {'key' => [from]})['rows']
+    if result.size > 0
+      user = result[0]['value']
+      if user['phone_verifier'] == received_verifier
+        user['phone_verifier'] == nil
+        @db.save_doc(user)
+      end
+    end
+  rescue Exception => e
+    puts e
+  end
+  SUCCESS_PAYLOAD 
+end
+
+post '/sms_gtw' do
+
   if (params[:secret] != 'cld!5cTgsas')
-    return "
-           {
-                 \"payload\": {
-                   \"success\": \"false\"
-               }
-           } "
+    return FAIL_PAYLOAD
   end
   from = params[:from]
   lbsid = params[:message]
@@ -57,21 +93,15 @@ post '/sms_gtw' do
     result = @db.view('users/by_phone', {'key' => [from]})['rows']
     if result.size > 0
       user = result[0]['value']
-      perform_checkin user, lbsid
+      perform_checkin user, lbsid unless user['phone_verifier']
     end
   rescue Exception => e
     puts e
-  end  
+  end
   puts "----------"
   puts lbsid
   puts from
-
-"
-       {
-             \"payload\": {
-               \"success\": \"true\"
-           }
-       } "
+  SUCCESS_PAYLOAD
 end
 
 get '/' do
