@@ -41,18 +41,37 @@ get '/ticket_history/:brand/:card_number' do
 end
 
 post '/sms_gtw' do
-  if (params[:secret] != 'cld!5cTgs')
-    return 'NOK'
+  
+  if (params[:secret] != 'cld!5cTgsas')
+    return "
+           {
+                 \"payload\": {
+                   \"success\": \"false\"
+               }
+           } "
   end
   from = params[:from]
-#  @db.view('user/by_phone', {'key' => [user.,from]})['rows']
-  
   lbsid = params[:message]
-  puts "---------"
+  @db = get_db
+  begin
+    result = @db.view('users/by_phone', {'key' => [from]})['rows']
+    if result.size > 0
+      user = result[0]['value']
+      perform_checkin user, lbsid
+    end
+  rescue Exception => e
+    puts e
+  end  
+  puts "----------"
   puts lbsid
   puts from
-  "OK"
- # perform_checkin user, params[:place_id]
+
+"
+       {
+             \"payload\": {
+               \"success\": \"true\"
+           }
+       } "
 end
 
 get '/' do
