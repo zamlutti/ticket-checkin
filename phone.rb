@@ -2,6 +2,10 @@
 
 get '/to_verify' do
   phone = params[:phone].to_i
+  @db = get_db
+  doc = @db.get(session[:user]['id'])
+  doc['phone'] = phone
+  @db.save_doc(doc)
   verifier = '#'+(Time.now+rand*10**10+phone).to_i().to_s(36).upcase  
 end
 

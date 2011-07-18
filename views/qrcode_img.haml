@@ -1,1 +1,25 @@
-%img{:src => @url}
+!!! 5
+%html
+    %head
+        %title
+            SanduiCheck.in
+        %link{:rel => 'stylesheet', :href => '/style.css'}
+    %body
+        #header
+            %h1#logo
+                %a{:href => '/'}
+                    Sanduicheck.in
+                    %span
+            %h2
+                Juntando a fome com a vontade de socializar.
+        .container
+            %img{:src => @url}
+            .code{:style => "font-size:#{@size}em"}
+                =@code
+        .text
+            Utilize um smartphone com leitor de QRCode, ou envie o código acima para o número
+            %b> &nbsp; (11) 9684-2821
+            \.&nbsp;Para utilizar esta funcionalidade é necessário cadastrar seu telefone
+            %a{:href => '/'}
+                aqui
+            , seguindo os passos para verificação de identidade :-)
