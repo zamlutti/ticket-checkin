@@ -25,16 +25,16 @@ get '/qrcode/:place_id' do
     haml :qrcode_img
 end
 
-get '/baboo' do
-  generate_pdf
+get '/pdf/:place_id/:size' do
+  generate_pdf params[:place_id], params[:size]
 end
 
-def generate_pdf path=nil
+def generate_pdf place_id, size
   PDFKit.configure do |config|
     config.wkhtmltopdf = "#{File.dirname(__FILE__)}/wkhtmltopdf-amd64"
   end
   content_type 'application/pdf', :charset => 'utf-8'
-  kit = PDFKit.new('http://sanduicheck.in/qrcode/xxx')
+  kit = PDFKit.new("http://ticket-checkin-clone.heroku.com/qrcode/#{place_id}/#{size}")
   pdf = kit.to_pdf
 
 end
