@@ -34,7 +34,7 @@ def generate_pdf path=nil
     config.wkhtmltopdf = "#{File.dirname(__FILE__)}/wkhtmltopdf-amd64"
   end
   content_type 'application/pdf', :charset => 'utf-8'
-  kit = PDFKit.new('http://sanduicheck.in/qrcode/xxxx')
+  kit = PDFKit.new('http://sanduicheck.in/qrcode/xxx')
   pdf = kit.to_pdf
 
 end
