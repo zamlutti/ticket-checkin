@@ -248,6 +248,12 @@ private
     end
   end
   
+  def get_place place_id
+    url = "http://#{ApontadorConfig.get_map['api_host']}/#{ApontadorConfig.get_map['api_sufix']}/places/#{place_id}?type=json"
+    f = open(url, :http_basic_authentication => [ApontadorConfig.get_map['consumer_key'], ApontadorConfig.get_map['consumer_secret']])
+    JSON.parse f.read
+  end
+  
   def perform_checkin(user, place_id)
     access_token = OAuth::AccessToken.new(client(:scheme => :body, :method => :put), user['access_token'], user['access_secret'])
     response = access_token.put("http://#{ApontadorConfig.get_map['api_host']}/#{ApontadorConfig.get_map['api_sufix']}/users/self/visits",{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })

@@ -16,6 +16,7 @@ get '/qrcode/:place_id/:size' do
     @url_pdf = create_url 'pdf', params[:place_id], params[:size]
     @code = params[:place_id]
     @size = convert_size_code params[:size]
+    @place = get_place params[:place_id]
     haml :qrcode_img
 end
 
@@ -24,6 +25,7 @@ get '/qrcode/:place_id' do
     @url_pdf = create_url 'pdf', params[:place_id], params[:size]
     @code = params[:place_id]
     @size = convert_size_code
+    @place = get_place params[:place_id]
     haml :qrcode_img
 end
 
