@@ -7,3 +7,4 @@ haml
 ruby-hmac
 rqrcode
 rmagick
+pdfkit

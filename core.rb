@@ -31,7 +31,7 @@ module OAuth::RequestProxy::Net
   end
 end
 
-enable :sessions 
+enable :sessions
 
 get '/ticket_history/:brand/:card_number' do
   number = params[:card_number]
