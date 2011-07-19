@@ -1,2 +1,3 @@
 config/apontador_credentials.yml
 config/couchdb_config.yml
+wkhtmltopdf-amd64

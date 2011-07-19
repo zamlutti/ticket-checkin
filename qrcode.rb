@@ -1,3 +1,5 @@
+require 'pdfkit'
+
 get '/qrcode_table/:place_id' do
    @qr = RQRCode::QRCode.new(redirect_uri("/auto_checkin/#{params[:place_id]}"), :level => :q)
    haml :qrcode_table
@@ -17,6 +19,20 @@ end
 get '/qrcode/:place_id' do
     @url = create_image_url params[:place_id]
     haml :qrcode_img
+end
+
+get '/baboo' do
+  generate_pdf
+end
+
+def generate_pdf path=nil
+  PDFKit.configure do |config|
+    config.wkhtmltopdf = "#{File.dirname(__FILE__)}/wkhtmltopdf-amd64"
+  end
+  content_type 'application/pdf', :charset => 'utf-8'
+  kit = PDFKit.new('http://sanduicheck.in/qrcode/xxxx')
+  pdf = kit.to_pdf
+
 end
 
 def create_image_url place_id, size_code=nil
