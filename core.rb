@@ -10,6 +10,10 @@ require 'accor_ticket'
 require 'visa_ticket'
 require 'base64'
 require 'hmac-sha1'
+require 'rqrcode'
+require 'qr_image'
+require 'phone'
+require 'qrcode'
 include Utils
 
 #monkey_patch para put. Melhor colocar em classe externa
@@ -27,19 +31,26 @@ module OAuth::RequestProxy::Net
   end
 end
 
-enable :sessions 
+enable :sessions
 
-get '/ticket_history/:card_number' do
+get '/ticket_history/:brand/:card_number' do
   number = params[:card_number]
-  expense_array = get_expenses number
+  manager = Kernel.const_get "#{params[:brand].capitalize}ExpensesManager"
+  expense_array = manager.get_expenses number
   #haml :history
   #expense_array[0]
   expense_array.to_json
 end
 
+
+
 get '/' do
   @consumer_key = ApontadorConfig.get_map['consumer_key']
   @callback_login = redirect_uri('/apontador_login_callback')
+  @url = redirect_uri('/')
+  encoder = HMAC::SHA1.new(ApontadorConfig.get_map['consumer_secret'])
+  signature_base = "fc=#{@callback_login}&key=#{@consumer_key}&perms=api&url=#{@url}"
+  @mysignature = Base64.encode64((encoder << signature_base).digest).strip
   haml :signup
 end
 
@@ -74,33 +85,88 @@ get '/apontador_callback' do
   haml :success
 end
 
+
 get '/apontador_login_callback' do
   
   encoder = HMAC::SHA1.new(ApontadorConfig.get_map['consumer_secret'])
   
-  username = params[:name]
+  #Verifica assinatura
+  signature_base = "consumerkey=#{params[:consumerkey]}&name=#{params[:name]}&token=#{params[:token]}&url=#{params[:url]}&userid=#{params[:userid]}"
+  mysignature = Base64.encode64((encoder << signature_base).digest).strip
+  raise Exception, "Assinatura inválida" unless mysignature == params[:signature]
+  #realizar o check
+  check_user response, params
+
+end
+
+
+get '/auto_checkin/:place_id' do
+  raise Exception, "Sem place id" unless params[:place_id]
+  auto_login request, params[:place_id]
+end
+
+get '/checkin/:place_id' do
+  puts "---------------CHECKIN -------------"
+  user = {'access_token' => session[:user]['oauth_token'], 'access_secret' => session[:user]['oauth_token_secret']}
+  perform_checkin user, params[:place_id]
+  "checkin efetuado com sucesso"
+end
+
+def auto_login request, place_id
+  @url = redirect_uri("/checkin/#{place_id}")
+  puts "-----------------AUTOLOGIN------------------------------"
+  cookie = request.cookies["remember_me_token"]
+  if cookie
+    cookie_array = cookie.partition("|")
+    puts "-----------------cookie------------------------------"
+    check_user(response, :token => cookie_array[0], :userid => cookie_array[2], :url => @url)
+  else
+    @consumer_key = ApontadorConfig.get_map['consumer_key']
+    @callback_login = redirect_uri('/apontador_login_callback')
+    encoder = HMAC::SHA1.new(ApontadorConfig.get_map['consumer_secret'])
+    signature_base = "fc=#{@callback_login}&key=#{@consumer_key}&perms=api&url=#{@url}"
+    @mysignature = URI.escape(Base64.encode64((encoder << signature_base).digest).strip).gsub('+', '%2B')
+    redirect "http://#{ApontadorConfig.get_map['auth_host']}/?key=#{@consumer_key}&perms=api&fc=#{@callback_login}&signature=#{@mysignature}&url=#{@url}"
+  end
+  
+end
+
+def check_user response, params
+  
+  encoder = HMAC::SHA1.new(ApontadorConfig.get_map['consumer_secret'])
+  
   userid = params[:userid]
   token = params[:token]
   
-  signature_base = "consumerkey=#{params[:consumerkey]}&name=#{username}&token=#{token}&url=#{params[:url]}&userid=#{userid}"
-  mysignature = Base64.encode64((encoder << signature_base).digest).strip
-  raise Exception "Assinatura inválida" unless mysignature == params[:signature]
-  
   timestamp = Time.now.to_i
   signature_check_base = "key=#{ApontadorConfig.get_map['consumer_key']}&token=#{token}&ts=#{timestamp}&userid=#{userid}"
-  signature_check = Base64.encode64((encoder << signature_check_base).digest).strip
+  signature_check = URI.escape(Base64.encode64((encoder << signature_check_base).digest).strip).gsub('+', '%2B')
   path_check = "/check?token=#{token}&userid=#{userid}&ts=#{timestamp}&key=#{ApontadorConfig.get_map['consumer_key']}&signature=#{signature_check}"
   url_check = 'http://'+ ApontadorConfig.get_map['auth_host'] + path_check
+  puts url_check
   begin 
     f = open(url_check)
-    check_map = JSON.parse(f.read.gsub("'", "\""))
+    api_response = f.read.gsub("'", "\"")
+    puts api_response
+    check_map = JSON.parse(api_response)
     #se for trusted terei email, token, token_secret adicionais
-    #puts check_map['token_secret']
-    check_map['name'] + '|' + check_map['userid']
+    response.set_cookie("remember_me_token", "#{token}|#{userid}")
+    session[:user] = check_map
+    begin
+      @db = get_db
+      doc = @db.get(userid)
+      if doc
+        doc['access_token'] = check_map['oauth_token']
+        doc['access_secret'] = check_map['oauth_token_secret']
+        @db.save_doc(doc)
+      end
+    rescue Exception => e
+      puts e
+    end
+    redirect params[:url] if params[:url]
   rescue Exception => e
     puts e
   end
-
 end
 
 def checkin_all
@@ -180,6 +246,12 @@ private
     if (obj['search']['result_count'].to_i > 0 )
       place_id = obj['search']['places'][0]['place']['id'].to_s
     end
+  end
+  
+  def get_place place_id
+    url = "http://#{ApontadorConfig.get_map['api_host']}/#{ApontadorConfig.get_map['api_sufix']}/places/#{place_id}?type=json"
+    f = open(url, :http_basic_authentication => [ApontadorConfig.get_map['consumer_key'], ApontadorConfig.get_map['consumer_secret']])
+    JSON.parse f.read
   end
   
   def perform_checkin(user, place_id)
