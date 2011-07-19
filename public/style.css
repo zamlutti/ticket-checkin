@@ -25,5 +25,20 @@ h2{font-size:1.1em;padding:55px 0 0 10px;}
 #disclaimer{padding-top:50px;font-size:0.8em;text-align:center;width:800px;margin:auto;}
 #login{text-align:right;width:500px;margin:0 auto;display:block;}
 #sucesso p{margin:50px;}
-
+.container {
+    text-align:center;
+    margin:0 auto
+    width:100%;
+    margin-bottom:40px;
+    margin-top:60px;
+}
+.code {
+    padding-top:10px;
+    color:#ff0000;
+}
+.text {
+    text-align:center;
+    width:400px;
+    margin:0 auto
+}
 
