@@ -12,14 +12,16 @@ get '/qrcode_img/:place_id/:size' do
 end
 
 get '/qrcode/:place_id/:size' do
-    @url = create_image_url params[:place_id], params[:size]
+    @url = create_url 'qrcode_img', params[:place_id], params[:size]
+    @url_pdf = create_url 'pdf', params[:place_id], params[:size]
     @code = params[:place_id]
     @size = convert_size_code params[:size]
     haml :qrcode_img
 end
 
 get '/qrcode/:place_id' do
-    @url = create_image_url params[:place_id]
+    @url = create_url 'qrcode_img', params[:place_id]
+    @url_pdf = create_url 'pdf', params[:place_id], params[:size]
     @code = params[:place_id]
     @size = convert_size_code
     haml :qrcode_img
@@ -39,7 +41,7 @@ def generate_pdf place_id, size
 
 end
 
-def create_image_url place_id, size_code=nil
+def create_url prefix, place_id, size_code=nil
   if (size_code == 'P')
     size = 6
   elsif (not size_code) || (size_code == 'M')
@@ -49,7 +51,7 @@ def create_image_url place_id, size_code=nil
   else 
     raise Exception, "Erro tamanho"
   end
-  redirect_uri("/qrcode_img/#{place_id}/#{size}")
+  redirect_uri("/#{prefix}/#{place_id}/#{size}")
 end
 
 def convert_size_code size_code=nil
