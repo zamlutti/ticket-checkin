@@ -13,7 +13,7 @@ end
 
 get '/qrcode/:place_id/:size' do
     @url = create_url 'qrcode_img', params[:place_id], params[:size]
-    @url_pdf = create_url 'pdf', params[:place_id], params[:size]
+    @url_pdf =  redirect_uri("/pdf/#{params[:place_id]}/#{params[:size]}")
     @code = params[:place_id]
     @size = convert_size_code params[:size]
     @place = get_place params[:place_id]
@@ -22,7 +22,7 @@ end
 
 get '/qrcode/:place_id' do
     @url = create_url 'qrcode_img', params[:place_id]
-    @url_pdf = create_url 'pdf', params[:place_id], params[:size]
+    @url_pdf =  redirect_uri("/pdf/#{params[:place_id]}/M")
     @code = params[:place_id]
     @size = convert_size_code
     @place = get_place params[:place_id]
