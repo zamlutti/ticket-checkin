@@ -3,7 +3,7 @@
     %head
         %title
             SanduiCheck.in
-        %link{:rel => 'stylesheet', :href => '/style.css'}
+        %link{:rel => 'stylesheet', :href => '/style_qr.css'}
     %body
         #header
             %h1#logo
@@ -12,13 +12,13 @@
                     %span
             %h2
                 Juntando a fome com a vontade de socializar.
-        .text{:style => 'width:600px;text-align:right'}
+        .text
             %a{:href => @url_pdf}
                 Gere um PDF de adesivo para imprimir
         .container
             #name
                 =@place['place']['name']
-            #address{:style => "padding-bottom:20px"}
+            #address
                 - address = @place['place']['address']
                 = "#{address['street']}, #{address['number']} / #{address['city']['name']} - #{address['city']['state']}"
             %img{:src => @url}

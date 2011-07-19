@@ -11,7 +11,7 @@ h2{font-size:1.1em;padding:55px 0 0 10px;}
 #logo a{position:relative;display:block;width:205px;height:100px;color:#eee}
 #logo a span{display:block;position:absolute;top:0;width:100%;height:100%;background:transparent url(/images/sanduicheckin.png) no-repeat left top;z-index:100;}
 #header{width:650px;height:100px;margin:0 auto}
-#card, #sucesso{background:#fefefe;border:1px solid #ccc;border-radius:20px;box-shadow:3px 3px 3px #aaa;padding:0;width:650px;height:350px;margin:0 auto}
+#card,#sucesso{background:#fefefe;border:1px solid #ccc;border-radius:20px;box-shadow:3px 3px 3px #aaa;padding:0;width:650px;height:350px;margin:0 auto}
 #text{margin:50px 50px 30px 50px;font-size:11pt}
 #card_number{margin:0px 5px 10px 5px;padding:4px 5px 5px;height:18px;width:280px;font-size:11pt;border:1px solid #757575;border-radius:5px;box-shadow:0 1px 2px rgba(0,0,0,.2);}
 #card_type{margin-left:50px;width:150px;height:22px;}
@@ -25,20 +25,6 @@ h2{font-size:1.1em;padding:55px 0 0 10px;}
 #disclaimer{padding-top:50px;font-size:0.8em;text-align:center;width:800px;margin:auto;}
 #login{text-align:right;width:500px;margin:0 auto;display:block;}
 #sucesso p{margin:50px;}
-.container {
-    text-align:center;
-    margin:0 auto
-    width:100%;
-    margin-bottom:40px;
-    margin-top:40px;
-}
-.code {
-    padding-top:10px;
-    color:#ff0000;
-}
-.text {
-    text-align:center;
-    width:400px;
-    margin:0 auto
-}
-
+.container{text-align:center;margin:0 auto;width:100%;margin-bottom:40px;margin-top:40px;}
+.code{padding-top:10px;color:#ff0000;}
+.text{text-align:center;width:400px;margin:0 auto}

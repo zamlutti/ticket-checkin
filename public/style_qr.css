@@ -1,0 +1,20 @@
+body{font-family:Helvetica;color:#555;}
+a{text-decoration:none;color:#1f4d85;}
+a:hover{text-decoration:none;}
+a:visited{text-decoration:none;}
+.clear{clear:both}
+h1#logo{font-size:10px;float:left}
+h2{font-size:1.1em;padding:55px 0 0 10px;}
+#logo a{position:relative;display:block;width:205px;height:100px;color:#eee}
+#logo a span{display:block;position:absolute;top:0;width:100%;height:100%;background:transparent url(/images/sanduicheckin.png) no-repeat left top;z-index:100;}
+#header{width:650px;height:100px;margin:0 auto}
+#text{margin:50px 50px 30px 50px;font-size:11pt}
+#card_images{margin:56px 0 0 50px;float:left}
+#card_images span{font-size:10pt;}
+#apontador_power{background:transparent url(/images/apontador_power_small.png) no-repeat;width:100px;height:60px;margin:70px 50px 0 0;float:right}
+#disclaimer{padding-top:50px;font-size:0.8em;text-align:center;width:800px;margin:auto;}
+#login{text-align:right;width:500px;margin:0 auto;display:block;}
+#address{padding-bottom:20px}
+.container{text-align:center;margin:0 auto;width:100%;margin-bottom:40px;margin-top:40px;}
+.code{padding-top:10px;color:#ff0000;}
+.text{width:600px;text-align:left;margin:0 auto}
