@@ -50,7 +50,7 @@ get '/' do
   @url = redirect_uri('/')
   encoder = HMAC::SHA1.new(ApontadorConfig.get_map['consumer_secret'])
   signature_base = "fc=#{@callback_login}&key=#{@consumer_key}&perms=api&url=#{@url}"
-  @mysignature = Base64.encode64((encoder << signature_base).digest).strip
+  @mysignature = URI.escape(Base64.encode64((encoder << signature_base).digest).strip).gsub('+', '%2B')
   haml :signup
 end
 
