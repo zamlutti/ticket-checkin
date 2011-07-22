@@ -11,7 +11,7 @@ module Foursquare
   
   def self.perform_checkin token, venue_id, ll
     #:ll => '36.142064,-86.816086'
-    client = Foursquare2::Client.new(:oauth_token => token)
+    client = Foursquare2::Client.new(:oauth_token => token, :ssl => { :verify => OpenSSL::SSL::VERIFY_PEER, :ca_file => '/usr/lib/ssl/certs/ca-certificates.crt' })
 #    puts client.recent_checkins
     puts client.add_checkin(:venueId => venue_id, :broadcast => 'public', :ll => ll, :shout => 'Acabei de comer por aqui!')
   end
