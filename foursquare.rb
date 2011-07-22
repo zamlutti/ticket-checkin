@@ -9,18 +9,16 @@ module Foursquare
     :client_secret => FoursquareConfig.get_map['client_secret'])
   end
   
-  def self.perform_checkin user, venue_id, ll
+  def self.perform_checkin token, venue_id, ll
     #:ll => '36.142064,-86.816086'
-    client = Foursquare2::Client.new(:oauth_token => user['4sq_token'])
+    client = Foursquare2::Client.new(:oauth_token => token)
 #    puts client.recent_checkins
     puts client.add_checkin(:venueId => venue_id, :broadcast => 'public', :ll => ll, :shout => 'Acabei de comer por aqui!')
   end
   
-  def self.checkin user, location_name, ll
-    if user['4sq_token']
+  def self.checkin token, location_name, ll
       venue_id = find_place location_name, ll
-      perform_checkin user, venue_id, ll
-    end
+      perform_checkin token, venue_id, ll
   end
   
   def self.categories

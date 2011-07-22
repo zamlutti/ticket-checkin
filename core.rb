@@ -14,6 +14,7 @@ require 'rqrcode'
 require 'qr_image'
 require 'phone'
 require 'qrcode'
+require 'foursquare'
 include Utils
 
 #monkey_patch para put. Melhor colocar em classe externa
@@ -224,6 +225,15 @@ private
           end
           if place_id
             perform_checkin(user, place_id)
+            if user['4sq_token']
+              begin
+                ap_place = get_place place_id
+                point = ap_place['place']['point']
+                Foursquare.checkin(user, ap_place['place']['name'], "#{point['lat]'},#{point['lng']}")
+              rescue Exception => e
+                puts e
+              end
+            end
             @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => ticket_number))  
           end
         end
