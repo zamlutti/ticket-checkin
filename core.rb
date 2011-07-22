@@ -152,12 +152,14 @@ def check_user response, params
     #se for trusted terei email, token, token_secret adicionais
     response.set_cookie("remember_me_token", "#{token}|#{userid}")
     session[:user] = check_map
+    puts "Foursquare: #{check_map['external_keys']['Foursquare']['oauth_token']}"
     begin
       @db = get_db
       doc = @db.get(userid)
       if doc
         doc['access_token'] = check_map['oauth_token']
         doc['access_secret'] = check_map['oauth_token_secret']
+        doc['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
         @db.save_doc(doc)
       end
     rescue Exception => e
@@ -235,7 +237,7 @@ private
     #busca restaurante
     place_id = find_place_category term, 67
     #senao tenta lanchonete
-    place_id ||= find_place_category term, 3 
+    place_id ||= find_place_category term, 3  
   end
   
   def find_place_category term, category

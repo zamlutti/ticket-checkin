@@ -16,6 +16,14 @@ module Utils
     end
     
   end
+  
+  class FoursquareConfig
+    
+    def self.get_map
+      @@foursquare_config ||= ConfigStore.new("config/foursquare_credentials.yml")
+    end
+    
+  end
 
   class CouchDBConfig
     
