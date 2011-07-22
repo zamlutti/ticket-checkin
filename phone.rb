@@ -53,6 +53,7 @@ post '/sms_gtw' do
   end
   from = params[:from]
   lbsid = params[:message]
+  lbsid.strip!
   @db = get_db
   begin
     result = @db.view('users/by_phone', {'key' => [from]})['rows']
