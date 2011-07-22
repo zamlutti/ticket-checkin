@@ -6,7 +6,7 @@ module Foursquare
   
   def self.fixed_client
     @fixed_client ||= Foursquare2::Client.new(:client_id => FoursquareConfig.get_map['client_id'], 
-    :client_secret => FoursquareConfig.get_map['client_secret'])
+    :client_secret => FoursquareConfig.get_map['client_secret'], :ssl => { :verify => OpenSSL::SSL::VERIFY_PEER, :ca_file => '/usr/lib/ssl/certs/ca-certificates.crt' })
   end
   
   def self.perform_checkin token, venue_id, ll
