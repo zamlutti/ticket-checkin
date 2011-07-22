@@ -10,9 +10,8 @@ get '/to_verify' do
   begin
     doc = @db.get(session[:user]['userid'])
   rescue Exception => e
-    #TODO criar usuario
-#    @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], "#{session[:card_type]}_ticket".to_sym => session[:card_number], 
- #     :access_token => access_token.token, :access_secret => access_token.secret})  
+    user = session[:user]
+    doc = {'_id' => user['id'], :type => 'user', :name => user['name'], :access_token => user['oauth_token'], :access_secret => user['oauth_secret']}
   end
   doc['phone'] = '+55'+phone.to_s
   doc['phone_verifier'] = verifier

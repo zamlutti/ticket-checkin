@@ -224,16 +224,7 @@ private
             place_id = find_place synonyms.first['value']['synonym'] unless synonyms.empty?
           end
           if place_id
-            perform_checkin(user, place_id)
-            if user['4sq_token']
-              begin
-                ap_place = get_place place_id
-                point = ap_place['place']['point']
-                Foursquare.checkin(user['4sq_token'], ap_place['place']['name'], "#{point['lat']},#{point['lng']}")
-              rescue Exception => e
-                puts e
-              end
-            end
+            perform_checkin(user,place_id)
             @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => ticket_number))  
           end
         end
@@ -265,8 +256,21 @@ private
     f = open(url, :http_basic_authentication => [ApontadorConfig.get_map['consumer_key'], ApontadorConfig.get_map['consumer_secret']])
     JSON.parse f.read
   end
-  
+
   def perform_checkin(user, place_id)
+    perform_checkin_apontador(user, place_id)
+    if user['4sq_token']
+      begin
+        ap_place = get_place place_id
+        point = ap_place['place']['point']
+        Foursquare.checkin(user['4sq_token'], ap_place['place']['name'], "#{point['lat']},#{point['lng']}")
+      rescue Exception => e
+        puts e
+      end
+    end
+  end
+  
+  def perform_checkin_apontador(user, place_id)
     access_token = OAuth::AccessToken.new(client(:scheme => :body, :method => :put), user['access_token'], user['access_secret'])
     response = access_token.put("http://#{ApontadorConfig.get_map['api_host']}/#{ApontadorConfig.get_map['api_sufix']}/users/self/visits",{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })
     result = JSON.parse(response.body)
