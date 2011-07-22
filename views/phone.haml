@@ -1,0 +1,61 @@
+!!! 5
+%html
+    %head
+        %title
+            SanduiCheck.in
+        %link{:rel => 'stylesheet', :href => '/style.css'}
+        %script{:src => 'http://code.jquery.com/jquery-1.6.1.min.js', :type => 'text/javascript'}
+        %script{:src => '/js/jquery.meio.mask.min.js', :type => 'text/javascript'}
+        :javascript
+
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-5549826-6']);
+            _gaq.push(['_setDomainName', '.sanduicheck.in']);
+            _gaq.push(['_trackPageview']);
+
+            (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
+        
+    %body
+        #header
+            %h1#logo
+                %a{:href => '/'}
+                    Sanduicheck.in
+                    %span
+            %h2
+                Juntando a fome com a vontade de socializar.
+        #card
+            %p#text
+
+                Forneça o número de seu telefone e clique em enviar. Será gerado um código verificador. Envie este código para o seguinte número: 
+                %b
+                    (11) 9684-2821
+                \.
+                %br
+                %br
+                Depois disso, sempre que você enviar um código de check-in para o mesmo número, seu check-in será feito.
+            %form{:name => 'phone_verification', :action => 'to_verify', :method => 'get'}
+                %span{:style => 'margin-left:50px'}
+                    Telefone
+                %input{:type => 'text', :name => 'phone', :id => 'phone', :class => 'bt_field', :placeholder => '1199558877'}
+                %input{:type => 'submit', :value => 'Enviar', :id => 'button_', :class => 'gray'}
+            #card_images
+            %a{:href => 'http://api.apontador.com.br', :target => 'blank'}
+                #apontador_power
+        .clear
+        #disclaimer
+            Desenvolvido por&nbsp;
+            %a{:href => 'http://www.twitter.com/tganzarolli', :target => 'blank'}>@tganzarolli
+            , com design de&nbsp;
+            %a{:href => 'http://www.apontador.com.br/profile/index/2201721751.html', :target => 'blank'}>Karen Zamlutti
+            , baseado em uma conversa de&nbsp;
+            %a{:href => 'http://www.twitter.com/chesterbr', :target => 'blank'}>@chesterbr
+            &nbsp;e&nbsp;
+            %a{:href => 'http://www.twitter.com/bani', :target => 'blank'}>@bani
+            \. Este não é um aplicativo oficial da Ticket (Accor), Visa Vale ou do Apontador. Todos os direitos reservados às respectivas marcas. O&nbsp;
+            %a{:href => 'https://github.com/tganzarolli/ticket-checkin', :target => 'blank'}>código fonte
+            &nbsp;é aberto. Estamos em pré-beta ainda, mas aguardem atualizações que irão melhorar a acuracidade do checkin :-)
+        %script{:src => '/js/signup.js', :type => 'text/javascript'}

@@ -13,7 +13,8 @@ h2{font-size:1.1em;padding:55px 0 0 10px;}
 #header{width:650px;height:100px;margin:0 auto}
 #card, #sucesso{background:#fefefe;border:1px solid #ccc;border-radius:20px;box-shadow:3px 3px 3px #aaa;padding:0;width:650px;height:350px;margin:0 auto}
 #text{margin:50px 50px 30px 50px;font-size:11pt}
-#card_number{margin:0px 5px 10px 5px;padding:4px 5px 5px;height:18px;width:280px;font-size:11pt;border:1px solid #757575;border-radius:5px;box-shadow:0 1px 2px rgba(0,0,0,.2);}
+.bt_field{margin:0px 5px 10px 5px;padding:4px 5px 5px;height:18px;width:280px;font-size:11pt;border:1px solid #757575;border-radius:5px;box-shadow:0 1px 2px rgba(0,0,0,.2);}
+.ticket {}
 #card_type{margin-left:50px;width:150px;height:22px;}
 #card_type option{font-size:11pt}
 #button_{display:inline-block;outline:none;cursor:pointer;text-align:center;text-decoration:none;font-size:11pt;padding:3px 19px 5px;border-radius:5px;box-shadow:0 1px 2px rgba(0,0,0,.2);}

@@ -1,12 +1,17 @@
 
+get '/add_phone' do
+  haml :phone
+end
 
 get '/to_verify' do
   phone = params[:phone].to_i
+  verifier = '#'+(Time.now+rand*10**10+phone).to_i().to_s(36).upcase
   @db = get_db
-  doc = @db.get(session[:user]['id'])
-  doc['phone'] = phone
+  doc = @db.get(session[:user]['userid'])
+  doc['phone'] = '+55'+phone.to_s
+  doc['phone_verifier'] = verifier
   @db.save_doc(doc)
-  verifier = '#'+(Time.now+rand*10**10+phone).to_i().to_s(36).upcase  
+  verifier
 end
 
 FAIL_PAYLOAD = " {
@@ -22,16 +27,14 @@ SUCCESS_PAYLOAD = "
            }
        } "
 
-post '/verify' do
+def verify params
+  
   received_verifier = params[:message].upcase
     
-  if ((params[:secret] != 'cld!5cTgsas') || (/^#.+$/ =~ received_verifier).nil?)
-    return FAIL_PAYLOAD
-  end
-  
   from = params[:from]
   @db = get_db
   begin
+    puts from
     result = @db.view('users/by_phone', {'key' => [from]})['rows']
     if result.size > 0
       user = result[0]['value']
@@ -46,10 +49,14 @@ post '/verify' do
   SUCCESS_PAYLOAD 
 end
 
+
 post '/sms_gtw' do
 
   if (params[:secret] != 'cld!5cTgsas')
     return FAIL_PAYLOAD
+  end
+  if params[:message] =~ /#.+/
+    return verify params
   end
   from = params[:from]
   lbsid = params[:message]
