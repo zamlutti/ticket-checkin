@@ -207,6 +207,7 @@ private
     #troque para testar. 0 para prod
     offset = 0
     ticket_number = user['accor_ticket'] || user['visa_ticket']
+    return unless ticket_number
     brand = (user['accor_ticket']) ? 'Accor' : 'Visa'
     manager = Kernel.const_get "#{brand.capitalize}ExpensesManager"
     expense_array = manager.get_expenses ticket_number, lambda{ |expense| build_date(expense.date) == (Date.today - offset)}
