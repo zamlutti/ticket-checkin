@@ -229,7 +229,7 @@ private
               begin
                 ap_place = get_place place_id
                 point = ap_place['place']['point']
-                Foursquare.checkin(user, ap_place['place']['name'], "#{point['lat]'},#{point['lng']}")
+                Foursquare.checkin(user['4sq_token'], ap_place['place']['name'], "#{point['lat']},#{point['lng']}")
               rescue Exception => e
                 puts e
               end
