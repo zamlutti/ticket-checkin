@@ -8,4 +8,6 @@ ruby-hmac
 rqrcode
 rmagick
 pdfkit
+faraday
+faraday_middleware
 foursquare2
