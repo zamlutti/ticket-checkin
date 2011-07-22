@@ -7,7 +7,13 @@ get '/to_verify' do
   phone = params[:phone].to_i
   verifier = '#'+(Time.now+rand*10**10+phone).to_i().to_s(36).upcase
   @db = get_db
-  doc = @db.get(session[:user]['userid'])
+  begin
+    doc = @db.get(session[:user]['userid'])
+  rescue Exception => e
+    #TODO criar usuario
+#    @db.save_doc({'_id' => user['user']['id'], :type => 'user', :name => user['user']['name'], "#{session[:card_type]}_ticket".to_sym => session[:card_number], 
+ #     :access_token => access_token.token, :access_secret => access_token.secret})  
+  end
   doc['phone'] = '+55'+phone.to_s
   doc['phone_verifier'] = verifier
   @db.save_doc(doc)
