@@ -154,12 +154,13 @@ def check_user response, params
     session[:user] = check_map
     puts "Foursquare" if check_map['external_keys']['Foursquare']['oauth_token']
     @db = get_db
+    #Se ja existe, coloca informacao na sessao. Se nao existe, cria
     begin
       doc = @db.get(userid)
       session[:user][:phone] = doc['phone']
       session[:user][:phone_verifier] = doc['phone_verifier']
     rescue Exception => e
-      doc = {'_id' => user['id'], :type => 'user'}
+      doc = {'_id' => check_map['id'], :type => 'user', :name => check_map['name']}
     end
     doc['access_token'] = check_map['oauth_token']
     doc['access_secret'] = check_map['oauth_token_secret']
