@@ -4,7 +4,7 @@ get '/add_phone' do
 end
 
 get '/to_verify' do
-  phone = params[:phone].to_i
+  phone = params[:phone].gsub(/[^[:digit:]]/, '').to_i
   verifier = '#'+(Time.now+rand*10**10+phone).to_i().to_s(36).upcase
   @db = get_db
   begin
