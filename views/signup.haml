@@ -33,6 +33,14 @@
                     login
             -else
                 =session[:user]['name']
+                &nbsp;|&nbsp;
+                %a{:href=>'/add_phone', :title => session[:user][:phone]}
+                    -if (not session[:user][:phone])
+                        Associar telefone
+                    -elsif session[:user][:phone_verifier]
+                        Telefone NÃO verificado.
+                    -else
+                        Telefone associado
         #card
             %p#text
                 Tem preguiça de fazer checkin?
@@ -45,7 +53,7 @@
                 %select#card_type{:name => 'card_type'}
                     %option{:value => 'accor'}Ticket Restaurante
                     %option{:value => 'visa'}Visa Vale
-                %input{:type => 'text', :name => 'card_number', :id => 'card_number', :class => 'ticket', :placeholder => 'número do ticket'}
+                %input{:type => 'text', :name => 'card_number', :id => 'card_number', :class => 'ticket bt_field', :placeholder => 'número do ticket'}
                 %input{:type => 'submit', :value => 'Enviar', :id => 'button_', :class => 'gray'}
             #card_images
                 %span

@@ -8,3 +8,7 @@ ruby-hmac
 rqrcode
 rmagick
 pdfkit
+faraday --version 0.6.0 --ignore-dependencies
+faraday_middleware
+hashie
+foursquare2 --ignore-dependencies

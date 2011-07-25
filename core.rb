@@ -14,6 +14,7 @@ require 'rqrcode'
 require 'qr_image'
 require 'phone'
 require 'qrcode'
+require 'foursquare'
 include Utils
 
 #monkey_patch para put. Melhor colocar em classe externa
@@ -50,7 +51,7 @@ get '/' do
   @url = redirect_uri('/')
   encoder = HMAC::SHA1.new(ApontadorConfig.get_map['consumer_secret'])
   signature_base = "fc=#{@callback_login}&key=#{@consumer_key}&perms=api&url=#{@url}"
-  @mysignature = Base64.encode64((encoder << signature_base).digest).strip
+  @mysignature = URI.escape(Base64.encode64((encoder << signature_base).digest).strip).gsub('+', '%2B')
   haml :signup
 end
 
@@ -147,22 +148,24 @@ def check_user response, params
   begin 
     f = open(url_check)
     api_response = f.read.gsub("'", "\"")
-    puts api_response
     check_map = JSON.parse(api_response)
     #se for trusted terei email, token, token_secret adicionais
     response.set_cookie("remember_me_token", "#{token}|#{userid}")
     session[:user] = check_map
+    puts "Foursquare" if check_map['external_keys']['Foursquare']['oauth_token']
+    @db = get_db
+    #Se ja existe, coloca informacao na sessao. Se nao existe, cria
     begin
-      @db = get_db
       doc = @db.get(userid)
-      if doc
-        doc['access_token'] = check_map['oauth_token']
-        doc['access_secret'] = check_map['oauth_token_secret']
-        @db.save_doc(doc)
-      end
+      session[:user][:phone] = doc['phone']
+      session[:user][:phone_verifier] = doc['phone_verifier']
     rescue Exception => e
-      puts e
+      doc = {'_id' => check_map['id'], :type => 'user', :name => check_map['name']}
     end
+    doc['access_token'] = check_map['oauth_token']
+    doc['access_secret'] = check_map['oauth_token_secret']
+    doc['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
+    @db.save_doc(doc)
     redirect params[:url] if params[:url]
   rescue Exception => e
     puts e
@@ -204,6 +207,7 @@ private
     #troque para testar. 0 para prod
     offset = 0
     ticket_number = user['accor_ticket'] || user['visa_ticket']
+    return unless ticket_number
     brand = (user['accor_ticket']) ? 'Accor' : 'Visa'
     manager = Kernel.const_get "#{brand.capitalize}ExpensesManager"
     expense_array = manager.get_expenses ticket_number, lambda{ |expense| build_date(expense.date) == (Date.today - offset)}
@@ -221,7 +225,7 @@ private
             place_id = find_place synonyms.first['value']['synonym'] unless synonyms.empty?
           end
           if place_id
-            perform_checkin(user, place_id)
+            perform_checkin(user,place_id)
             @db.save_doc(expense_hash.merge(:type => 'expense', :ticket => ticket_number))  
           end
         end
@@ -235,7 +239,7 @@ private
     #busca restaurante
     place_id = find_place_category term, 67
     #senao tenta lanchonete
-    place_id ||= find_place_category term, 3 
+    place_id ||= find_place_category term, 3  
   end
   
   def find_place_category term, category
@@ -253,8 +257,20 @@ private
     f = open(url, :http_basic_authentication => [ApontadorConfig.get_map['consumer_key'], ApontadorConfig.get_map['consumer_secret']])
     JSON.parse f.read
   end
-  
   def perform_checkin(user, place_id)
+    perform_checkin_apontador(user, place_id)
+    if user['4sq_token']
+      begin
+        ap_place = get_place place_id
+        point = ap_place['place']['point']
+        Foursquare.checkin(user['4sq_token'], ap_place['place']['name'], "#{point['lat']},#{point['lng']}")
+      rescue Exception => e
+        puts e
+      end
+    end
+  end
+  
+  def perform_checkin_apontador(user, place_id)
     access_token = OAuth::AccessToken.new(client(:scheme => :body, :method => :put), user['access_token'], user['access_secret'])
     response = access_token.put("http://#{ApontadorConfig.get_map['api_host']}/#{ApontadorConfig.get_map['api_sufix']}/users/self/visits",{:type => 'json', :place_id => place_id}, {'Accept'=>'application/json' })
     result = JSON.parse(response.body)

@@ -1,3 +1,5 @@
 config/apontador_credentials.yml
 config/couchdb_config.yml
+config/foursquare_credentials.yml
 wkhtmltopdf-amd64
+.DS_Store
