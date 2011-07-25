@@ -148,24 +148,23 @@ def check_user response, params
   begin 
     f = open(url_check)
     api_response = f.read.gsub("'", "\"")
-    puts api_response
     check_map = JSON.parse(api_response)
     #se for trusted terei email, token, token_secret adicionais
     response.set_cookie("remember_me_token", "#{token}|#{userid}")
     session[:user] = check_map
-    puts "Foursquare: #{check_map['external_keys']['Foursquare']['oauth_token']}"
+    puts "Foursquare" if check_map['external_keys']['Foursquare']['oauth_token']
+    @db = get_db
     begin
-      @db = get_db
       doc = @db.get(userid)
-      if doc
-        doc['access_token'] = check_map['oauth_token']
-        doc['access_secret'] = check_map['oauth_token_secret']
-        doc['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
-        @db.save_doc(doc)
-      end
+      session[:user][:phone] = doc['phone']
+      session[:user][:phone_verifier] = doc['phone_verifier']
     rescue Exception => e
-      puts e
+      doc = {'_id' => user['id'], :type => 'user'}
     end
+    doc['access_token'] = check_map['oauth_token']
+    doc['access_secret'] = check_map['oauth_token_secret']
+    doc['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
+    @db.save_doc(doc)
     redirect params[:url] if params[:url]
   rescue Exception => e
     puts e

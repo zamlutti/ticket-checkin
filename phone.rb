@@ -11,6 +11,8 @@ get '/to_verify' do
     doc = @db.get(session[:user]['userid'])
   rescue Exception => e
     user = session[:user]
+    #!!!!----
+    #DEPRECATED (usuario sera criado no login)
     doc = {'_id' => user['id'], :type => 'user', :name => user['name'], :access_token => user['oauth_token'], :access_secret => user['oauth_token_secret']}
   end
   doc['phone'] = '+55'+phone.to_s

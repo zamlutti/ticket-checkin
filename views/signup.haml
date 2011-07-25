@@ -32,8 +32,15 @@
                 %a{:href=>"http://#{ApontadorConfig.get_map['auth_host']}/?key=#{@consumer_key}&perms=api&fc=#{@callback_login}&signature=#{@mysignature}&url=#{@url}"}
                     login
             -else
-                %a{:href=>'/add_phone'}
-                    =session[:user]['name']
+                =session[:user]['name']
+                &nbsp;|&nbsp;
+                %a{:href=>'/add_phone', :title => session[:user][:phone]}
+                    -if (not session[:user][:phone])
+                        Associar telefone
+                    -elsif session[:user][:phone_verifier]
+                        Telefone NÃO verificado.
+                    -else
+                        Telefone associado
                 
         #card
             %p#text
