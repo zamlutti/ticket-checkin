@@ -26,7 +26,7 @@ module Foursquare
   end
   
   def self.find_place location_name, ll
-    venue = fixed_client.search_venues(:query => location_name, :limit => 1, :ll => ll)
+    venue = fixed_client.search_venues(:query => location_name, :limit => 1, :ll => ll, :intent => 'match')
     if venue['groups'][0]['items'].length > 0
       venue['groups'][0]['items'][0]['id']
     else
