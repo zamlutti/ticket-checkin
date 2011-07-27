@@ -165,6 +165,7 @@ def check_user response, params
     doc['access_token'] = check_map['oauth_token']
     doc['access_secret'] = check_map['oauth_token_secret']
     doc['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
+    doc['token'] = token
     @db.save_doc(doc)
     redirect params[:url] if params[:url]
   rescue Exception => e
