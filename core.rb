@@ -108,7 +108,7 @@ end
 
 get '/checkin/:place_id' do
   puts "---------------CHECKIN -------------"
-  user = {'access_token' => session[:user]['oauth_token'], 'access_secret' => session[:user]['oauth_token_secret']}
+  user = {'access_token' => session[:user]['oauth_token'], 'access_secret' => session[:user]['oauth_token_secret'], '4sq_token' => session[:user]['4sq_token']}
   perform_checkin user, params[:place_id]
   "checkin efetuado com sucesso"
 end
@@ -159,12 +159,17 @@ def check_user response, params
       doc = @db.get(userid)
       session[:user][:phone] = doc['phone']
       session[:user][:phone_verifier] = doc['phone_verifier']
+      if check_map['external_keys'] && check_map['external_keys']['Foursquare']
+        session[:user]['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
+      end
     rescue Exception => e
       doc = {'_id' => check_map['id'], :type => 'user', :name => check_map['name']}
     end
     doc['access_token'] = check_map['oauth_token']
     doc['access_secret'] = check_map['oauth_token_secret']
-    doc['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
+    if check_map['external_keys'] && check_map['external_keys']['Foursquare']
+      doc['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
+    end
     doc['token'] = token
     @db.save_doc(doc)
     redirect params[:url] if params[:url]
