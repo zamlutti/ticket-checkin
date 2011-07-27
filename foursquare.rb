@@ -18,7 +18,7 @@ module Foursquare
   
   def self.checkin token, location_name, ll
       venue_id = find_place location_name, ll
-      perform_checkin token, venue_id, ll
+      perform_checkin token, venue_id, ll if venue_id
   end
   
   def self.categories
@@ -27,7 +27,6 @@ module Foursquare
   
   def self.find_place location_name, ll
     venue = fixed_client.search_venues(:query => location_name, :limit => 1, :ll => ll, :intent => 'match')
-    puts "------------Venue: #{venue}--------------"
     if venue['groups'][0]['items'].length > 0
       venue['groups'][0]['items'][0]['id']
     else
