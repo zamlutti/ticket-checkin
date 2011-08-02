@@ -100,6 +100,9 @@ get '/apontador_login_callback' do
 
 end
 
+get '/baboo' do
+  puts find_place 'Scheiße vila olimpia'
+end
 
 get '/auto_checkin/:place_id' do
   raise Exception, "Sem place id" unless params[:place_id]
@@ -183,7 +186,11 @@ def checkin_all
   @db.view('users/all')['rows'].each do |row|
     user = row['value']
     puts user['name']
-    checkin user
+    begin
+      checkin user
+    rescue Exception => e
+      puts e
+    end
   end
 end
 
