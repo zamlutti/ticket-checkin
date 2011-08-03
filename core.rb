@@ -228,7 +228,7 @@ private
     expense_array.each do |expense|
       expense_hash = JSON.parse(expense.to_json)['expense']
       begin
-        if @db.view('unique_expenses/by_date_amount_and_desc', {'key' => [expense.date,expense.amount,expense.description]})['rows'].length == 0
+        if @db.view('unique_expenses/by_date_amount_and_desc', {'key' => [expense.date,expense.amount,expense.description,ticket_number]})['rows'].length == 0
           puts expense.to_json
           place_id = find_place expense.description
           if not place_id
