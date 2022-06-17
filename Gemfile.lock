@@ -12,7 +12,7 @@ GEM
     json (1.5.1)
     mime-types (1.16)
     oauth (0.4.4)
-    rack (1.2.2)
+    rack (1.6.13)
     rest-client (1.6.1)
       mime-types (>= 1.16)
     ruby-hmac (0.4.0)
